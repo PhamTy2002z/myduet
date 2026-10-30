@@ -299,7 +299,16 @@ green "  managed coworker endpoint: $MANAGED_AGENT_AG_UI_URL"
 # happens, and with nothing that can create it the line says exactly what to run.
 LEARNING_CONTAINER="$(setting CPK_INTELLIGENCE_LEARNING_CONTAINER_ID "")"
 LEARNING_AUTO_ASSIGN="$(setting OPENBOT_LEARNING_AUTO_ASSIGN true)"
-if [ -z "$LEARNING_CONTAINER" ] && [ "$LEARNING_AUTO_ASSIGN" != "false" ] \
+# The built-in platform (server/src/intelligence) is this server: its migration seeds `openbot`, and
+# setup-learning only knows how to reach a hosted or self-hosted Intelligence origin.
+INTELLIGENCE_URL="$(setting INTELLIGENCE_API_URL "http://localhost:${SERVER_PORT}/api/intelligence")"
+case "$INTELLIGENCE_URL" in
+  http://localhost:*/api/intelligence | http://127.0.0.1:*/api/intelligence) BUILT_IN_PLATFORM=true ;;
+  *) BUILT_IN_PLATFORM=false ;;
+esac
+if [ "$BUILT_IN_PLATFORM" = "true" ]; then
+  info "  Automatic Learning: built-in platform, its openbot container is created by the migration."
+elif [ -z "$LEARNING_CONTAINER" ] && [ "$LEARNING_AUTO_ASSIGN" != "false" ] \
    && [ "$LEARNING_AUTO_ASSIGN" != "0" ] && { [ -n "$(setting CPK_INTELLIGENCE_API_KEY "")" ] || [ -n "$(setting INTELLIGENCE_API_KEY "")" ]; }; then
   LEARNING_LINE="$(bun scripts/setup-learning.ts --non-interactive 2>>"$LOGS/learning-setup.log" | tail -1 || true)"
   info "  ${LEARNING_LINE:-Automatic Learning: the container check did not run. Log: $LOGS/learning-setup.log}"
