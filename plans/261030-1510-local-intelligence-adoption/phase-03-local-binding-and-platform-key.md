@@ -1,7 +1,7 @@
 ---
 phase: 3
 title: "Local-only binding and a generated platform key"
-status: pending
+status: completed
 priority: P1
 effort: "1.5h"
 dependencies: [1]
@@ -44,3 +44,12 @@ public placeholder key.
 ## Risks
 - Linux hosts: Docker Bots calling back via `host.docker.internal` cannot reach a loopback-only
   server. Document: set `BIND_HOST` to the docker bridge address (or put a reverse proxy in front).
+
+## Result (2026-10-30)
+- `BIND_HOST` (config.ts `bindHost`, validated; http-server `hostname`; Vite `host` + proxy target).
+  `start.sh` defaults it to 127.0.0.1; compose `server` pins `0.0.0.0` in its container.
+- `start.sh` replaces an empty/placeholder `CPK_INTELLIGENCE_API_KEY` with `openssl rand -hex 32`
+  (never printed); a hosted/self-hosted key is left alone.
+- Fixed the Vite comment that called `::` "both loopbacks" (it is every interface).
+- Verified: 3001/3010 and all Docker ports listen on 127.0.0.1/::1 only; LAN IP refused on all six;
+  key replaced (64 hex chars). `config.test.ts` 155 pass incl. two new `BIND_HOST` tests.

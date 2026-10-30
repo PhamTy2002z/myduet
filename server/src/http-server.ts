@@ -45,6 +45,8 @@ const isPhoenix = (ws: {
 
 export function startHttpServer(deps: {
   port: number;
+  /** Listen on this address only; unset, every interface. */
+  hostname?: string;
   config: DeploymentConfig;
   resolveRequestActor: (
     request: Request,
@@ -72,6 +74,7 @@ export function startHttpServer(deps: {
 }): { stop(closeActiveConnections?: boolean): Promise<void> } {
   const {
     port,
+    hostname,
     config,
     resolveRequestActor,
     agentProfileStore,
@@ -111,6 +114,7 @@ export function startHttpServer(deps: {
 
   // Answered so a test can stop the server it started; the deployment keeps it for its whole life.
   return serve<SocketData>({
+    ...(hostname ? { hostname } : {}),
     port,
     async fetch(request, server) {
       const url = new URL(request.url);

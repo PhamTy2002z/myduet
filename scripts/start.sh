@@ -56,6 +56,11 @@ SUPERVISOR_PORT="$(setting SUPERVISOR_PORT 4500)"
 # was ignored: the supervisor was still started and the server still told to use it.
 ONE_COMPUTER_EACH="$(setting OPENBOT_ONE_COMPUTER_EACH true)"
 export APP_PORT SERVER_PORT
+# The address the API server and the app listen on. Loopback unless .env says otherwise: a laptop's
+# stack is for this machine, and every Docker port in docker-compose.yml is loopback already. Put a
+# reverse proxy in front for anyone else, or name the address to serve on here.
+BIND_HOST="$(setting BIND_HOST 127.0.0.1)"
+export BIND_HOST
 SUPERVISOR_TOKEN="$(setting SUPERVISOR_TOKEN openbot-dev-supervisor-token)"
 COMPUTER_TOKEN="$(setting COMPUTER_TOKEN openbot-dev-computer-token)"
 # A fixed default is fine here, unlike `AGENT_TOOL_TOKEN` below, but not because of where the server
@@ -140,6 +145,23 @@ if [ -z "$AGENT_TOOL_TOKEN" ]; then
   printf '\033[2m%s\033[0m\n' "Generated AGENT_TOOL_TOKEN and wrote it to .env."
 fi
 export AGENT_TOOL_TOKEN
+
+# The built-in Intelligence platform's key is the whole credential for every person's threads
+# (docs/intelligence-platform.md), and .env.example ships a placeholder anyone can read. Replace it
+# once, the way the tokens above are made; a key for a hosted or self-hosted Intelligence is left
+# alone.
+PLATFORM_KEY="$(setting CPK_INTELLIGENCE_API_KEY "")"
+if [ -z "$(setting INTELLIGENCE_API_KEY "")" ] \
+   && { [ -z "$PLATFORM_KEY" ] || [ "$PLATFORM_KEY" = "local-intelligence" ]; }; then
+  SECRETS_ROTATED=true
+  PLATFORM_KEY="$(openssl rand -hex 32)"
+  tmp="$(mktemp)"
+  grep -vE '^CPK_INTELLIGENCE_API_KEY=' "$ROOT/.env" > "$tmp" || true
+  printf 'CPK_INTELLIGENCE_API_KEY=%s\n' "$PLATFORM_KEY" >> "$tmp"
+  mv "$tmp" "$ROOT/.env"
+  printf '\033[2m%s\033[0m\n' "Generated CPK_INTELLIGENCE_API_KEY for the built-in platform and wrote it to .env."
+fi
+unset PLATFORM_KEY
 
 green() { printf '\033[32m%s\033[0m\n' "$1"; }
 red()   { printf '\033[31m%s\033[0m\n' "$1"; }

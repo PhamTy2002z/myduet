@@ -2791,6 +2791,7 @@ const localIntelligence = createLocalIntelligence({
 
 startHttpServer({
   port,
+  ...(config.bindHost ? { hostname: config.bindHost } : {}),
   config,
   resolveRequestActor,
   agentProfileStore,

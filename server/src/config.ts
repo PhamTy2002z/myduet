@@ -219,6 +219,8 @@ export type DeploymentConfig = {
   voice?: VoiceConfig;
   /** The port the API listens on. Named `PORT` or `SERVER_PORT`; see `serverPort`. */
   port: number;
+  /** The address the API listens on (`BIND_HOST`); unset, every interface. See `bindHost`. */
+  bindHost?: string;
   databaseUrl: string;
   keyEncryptionKey: string;
   /**
@@ -1478,6 +1480,23 @@ const DEFAULT_PORT = 3001;
  * A value that is not a whole port number is refused for the reason the caps above are: `30o1`
  * used to start the server on port 30, and a typo has to fail where somebody is looking.
  */
+/**
+ * `BIND_HOST`: the one address the API server listens on, such as `127.0.0.1` to keep a laptop's
+ * server off the network. Unset keeps every interface, which a container needs for its published
+ * port. An address, never a URL and never with a port: `PORT`/`SERVER_PORT` say that.
+ */
+export function bindHost(environment: Environment): string | undefined {
+  const raw = optional(environment, "BIND_HOST");
+  if (raw === undefined) return undefined;
+  const colons = raw.split(":").length - 1;
+  if (!/^[A-Za-z0-9.:-]+$/.test(raw) || colons === 1) {
+    throw new Error(
+      "BIND_HOST must be an address such as 127.0.0.1 or ::1, with no scheme, path or port",
+    );
+  }
+  return raw;
+}
+
 function serverPort(environment: Environment): number {
   const read = (name: string): number | undefined => {
     const raw = optional(environment, name);
@@ -1539,8 +1558,10 @@ export function loadConfig(
     keyEncryptionKey: deploymentKey,
   });
 
+  const listenHost = bindHost(environment);
   return {
     port: serverPort(environment),
+    ...(listenHost ? { bindHost: listenHost } : {}),
     transcription: transcriptionConfig(environment),
     voice: voiceConfig(environment),
     databaseUrl: required(environment, "DATABASE_URL"),

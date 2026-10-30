@@ -75,18 +75,28 @@ if (!apiPort.ok) {
   throw new Error(apiPort.reason.replace(/^PORT /, "SERVER_PORT "));
 }
 
+// BIND_HOST, the same setting the API server reads: one address to listen on (start.sh passes
+// 127.0.0.1). Unset, `::` — a dual-stack socket on every interface, so 127.0.0.1 and ::1 both
+// answer, and so does every other address this machine has. Left to itself Vite binds whichever one
+// this runtime resolves `localhost` to, which is ::1 under Node and 127.0.0.1 under bun, and the
+// other address is then refused.
+const bindHost = process.env.BIND_HOST?.trim() || undefined;
+// The API is reached where it listens; a wildcard is not an address to connect to.
+const apiHost =
+  bindHost && bindHost !== "0.0.0.0" && bindHost !== "::"
+    ? bindHost.includes(":")
+      ? `[${bindHost}]`
+      : bindHost
+    : "localhost";
+
 const serving = {
-  // Both loopbacks, which is what `::` gets you: Node opens a dual-stack socket, so 127.0.0.1 and
-  // ::1 both answer. Left to itself Vite binds whichever one this runtime resolves `localhost`
-  // to, which is ::1 under Node and 127.0.0.1 under bun, and the other address is then refused.
-  // Whoever is told the URL has no way to know which they were given.
   // Empty APP_PORT=/SERVER_PORT= is unset (compose / leftover .env), not NaN — same trap as Bot PORT.
-  host: "::",
+  host: bindHost ?? "::",
   port: appPort.port,
   strictPort: true,
   proxy: {
     "/api": {
-      target: `http://localhost:${apiPort.port}`,
+      target: `http://${apiHost}:${apiPort.port}`,
     },
   },
 };

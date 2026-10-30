@@ -898,6 +898,32 @@ describe("deployment configuration", () => {
     expect(loadConfig(baseEnvironment).port).toBe(3001);
   });
 
+  test("listens on every interface unless BIND_HOST names one address", () => {
+    expect(loadConfig(baseEnvironment).bindHost).toBeUndefined();
+    expect(loadConfig({ ...baseEnvironment, BIND_HOST: " " }).bindHost).toBe(
+      undefined,
+    );
+    expect(
+      loadConfig({ ...baseEnvironment, BIND_HOST: "127.0.0.1" }).bindHost,
+    ).toBe("127.0.0.1");
+    expect(loadConfig({ ...baseEnvironment, BIND_HOST: "::1" }).bindHost).toBe(
+      "::1",
+    );
+  });
+
+  test("refuses a BIND_HOST that is a URL or carries a port", () => {
+    for (const value of [
+      "http://127.0.0.1",
+      "127.0.0.1:3001",
+      "localhost/api",
+      "10.0.0.1 10.0.0.2",
+    ]) {
+      expect(() =>
+        loadConfig({ ...baseEnvironment, BIND_HOST: value }),
+      ).toThrow(/BIND_HOST/);
+    }
+  });
+
   test("moves the server by either name", () => {
     expect(loadConfig({ ...baseEnvironment, PORT: "3005" }).port).toBe(3005);
     expect(loadConfig({ ...baseEnvironment, SERVER_PORT: "3005" }).port).toBe(
