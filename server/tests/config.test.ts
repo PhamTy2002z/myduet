@@ -1331,11 +1331,43 @@ describe("memory sources and background research", () => {
  */
 describe("AGENT_ENDPOINT_ALLOWED_HOSTS", () => {
   // The suite's own base, so this describes only its subject rather than re-deriving a whole
-  // deployment and failing on whichever requirement it forgot.
-  const base = () => ({ ...baseEnvironment });
+  // deployment and failing on whichever requirement it forgot. Without the managed Bot, whose own
+  // address is named by the deployment (see the tests below).
+  const base = () => {
+    const { MANAGED_AGENT_AG_UI_URL: _managed, ...rest } = baseEnvironment;
+    return rest;
+  };
 
   test("unset means none, which is the posture that shipped", () => {
     expect(loadConfig(base()).agentEndpointAllowedHosts.size).toBe(0);
+  });
+
+  test("names the managed Bot's own address, port pinned", () => {
+    const hosts = loadConfig({
+      ...base(),
+      MANAGED_AGENT_AG_UI_URL: "http://localhost:4201/ag-ui",
+    }).agentEndpointAllowedHosts;
+    expect([...hosts]).toEqual(["localhost:4201"]);
+  });
+
+  test("names the installed picked harness, and not a BYO one", () => {
+    const installed = loadConfig({
+      ...base(),
+      PICKED_HARNESS_IMAGE: "openbot-agent-claude-sdk:latest",
+      PICKED_HARNESS_URL: "http://127.0.0.1:4212",
+      AGENT_ENDPOINT_ALLOWED_HOSTS: "agents.internal",
+    }).agentEndpointAllowedHosts;
+    expect([...installed].sort()).toEqual([
+      "127.0.0.1:4212",
+      "agents.internal",
+    ]);
+
+    // No image: the address was written for a harness this deployment does not run.
+    const byo = loadConfig({
+      ...base(),
+      PICKED_HARNESS_URL: "http://127.0.0.1:4212",
+    }).agentEndpointAllowedHosts;
+    expect(byo.size).toBe(0);
   });
 
   test("a comma-separated list is parsed, lower-cased and trimmed", () => {

@@ -1177,9 +1177,21 @@ function runtimeCapabilities(environment: Environment): RuntimeCapabilities {
  */
 function agentEndpointAllowedHosts(
   environment: NodeJS.ProcessEnv,
+  /**
+   * Endpoints this deployment runs itself: the managed Bot and the installed picked harness. Their
+   * addresses are already named by whoever runs it (MANAGED_AGENT_AG_UI_URL, PICKED_HARNESS_URL),
+   * and they live on loopback or the compose network by design, so without this every run to them
+   * was refused as "inside OpenBot's own network". Port pinned, so naming one opens nothing else.
+   */
+  ownEndpoints: readonly (URL | undefined)[] = [],
 ): ReadonlySet<string> {
   const named = commaSeparated(environment, "AGENT_ENDPOINT_ALLOWED_HOSTS");
   const hosts = new Set<string>();
+  for (const endpoint of ownEndpoints) {
+    if (!endpoint) continue;
+    const hostname = endpoint.hostname.toLowerCase();
+    hosts.add(endpoint.port ? `${hostname}:${endpoint.port}` : hostname);
+  }
   for (const entry of named) {
     const host = entry.trim().toLowerCase();
     if (!host) continue;
@@ -1569,7 +1581,10 @@ export function loadConfig(
     ...(webBotAuth ? { webBotAuth } : {}),
     ...(managedAgent ? { managedAgent } : {}),
     ...(githubApp ? { githubApp } : {}),
-    agentEndpointAllowedHosts: agentEndpointAllowedHosts(environment),
+    agentEndpointAllowedHosts: agentEndpointAllowedHosts(environment, [
+      managedAgent?.endpoint,
+      managedAgent?.alsoRun,
+    ]),
     deploymentId: optional(environment, "DEPLOYMENT_ID"),
     composioApiKey: optional(environment, "COMPOSIO_API_KEY"),
     arcadeApiKey: optional(environment, "ARCADE_API_KEY"),
