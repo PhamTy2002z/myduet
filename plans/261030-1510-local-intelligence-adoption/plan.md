@@ -1,7 +1,7 @@
 ---
 title: "Run myduet without managed CopilotKit Intelligence"
 description: "Adopt the in-repo Intelligence platform from lennartschoch/OpenBot, verify it end to end with no CopilotKit account, and harden it for a multi-user company deployment."
-status: in-progress
+status: completed
 priority: P1
 effort: 7h
 branch: adopt-local-intelligence
@@ -46,19 +46,19 @@ local-Intelligence code, multi-replica fan-out, Helm chart changes.
 | 1 | [Boot with no CopilotKit account](./phase-01-boot-without-copilotkit-account.md) | Completed | 2h |
 | 2 | [Claude-plan model harness in the scripts](./phase-02-claude-plan-harness.md) | Completed | 1.5h |
 | 3 | [Local-only binding and a generated platform key](./phase-03-local-binding-and-platform-key.md) | Completed | 1.5h |
-| 4 | [End-to-end verification and docs](./phase-04-e2e-verification-and-docs.md) | Pending | 2h |
+| 4 | [End-to-end verification and docs](./phase-04-e2e-verification-and-docs.md) | Completed | 2h |
 
 Phases run in order; each leaves the branch green (typecheck, lint, touched tests).
 
 ## Success Criteria
 
-- [ ] `.env` with no CopilotKit-issued key: `bash scripts/start.sh` reaches "Ready" and
+- [x] `.env` with no CopilotKit-issued key: `bash scripts/start.sh` reaches "Ready" and
       `/api/capabilities` answers `"mode":"intelligence"` served by the in-repo platform.
-- [ ] No outbound request to `*.copilotkit.ai` from the server during a chat (checked in logs /
+- [x] No outbound request to `*.copilotkit.ai` from the server during a chat (checked in logs /
       by unset managed URLs).
-- [ ] A built-in Bot answers through the Claude-plan harness; browser tool, chart component and an
+- [x] A built-in Bot answers through the Claude-plan harness; browser tool, chart component and an
       approval card all work in the UI.
-- [ ] Every listening port binds loopback under `start.sh`; LAN IP is refused.
-- [ ] `start.sh` never runs with the placeholder platform key.
-- [ ] Another person's thread is refused (covered by the platform integration suite).
-- [ ] Full test suite result recorded; no new failures versus the adopted baseline.
+- [x] Every listening port binds loopback under `start.sh`; LAN IP is refused.
+- [x] `start.sh` never runs with the placeholder platform key.
+- [x] Another person's thread is refused (covered by the platform integration suite).
+- [x] Full test suite result recorded; no new failures versus the adopted baseline.
