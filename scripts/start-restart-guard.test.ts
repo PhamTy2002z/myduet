@@ -352,10 +352,13 @@ describe("start.sh Learning container check", () => {
    * the setup helper, without a browser or a prompt, to make sure it exists, and relays its last line.
    */
   test.each(["INTELLIGENCE_API_KEY", "CPK_INTELLIGENCE_API_KEY"])(
-    "runs the non-interactive check when %s is set",
+    "runs the non-interactive check when %s is set for a hosted Intelligence",
     async (keyName) => {
       const result = await runStartWithStaleServerProbe(401, {
-        settings: { [keyName]: "cpk-synthetic" },
+        settings: {
+          [keyName]: "cpk-synthetic",
+          INTELLIGENCE_API_URL: "https://api.intelligence.copilotkit.ai",
+        },
       });
 
       expect(result.exitCode).toBe(0);
@@ -380,6 +383,16 @@ describe("start.sh Learning container check", () => {
 
     expect(result.exitCode).toBe(0);
     expect(result.stdout).not.toContain("LEARNING-CHECK");
+  });
+
+  test("is skipped on the built-in platform, whose migration seeds the container", async () => {
+    const result = await runStartWithStaleServerProbe(401, {
+      settings: { INTELLIGENCE_API_KEY: "cpk-synthetic" },
+    });
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).not.toContain("LEARNING-CHECK");
+    expect(result.stdout).toContain("Automatic Learning: built-in platform");
   });
 
   test("is skipped without a runtime key", async () => {
