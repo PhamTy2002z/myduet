@@ -9,6 +9,12 @@ memory — running inside the API server, on the Postgres it already uses. No Co
 extra service to run. "Local" is about CopilotKit's cloud and nothing else: a model still needs
 whatever endpoint its key points at. [The Intelligence platform →](docs/intelligence-platform.md)
 
+**myduet additions.** `scripts/start.sh` keeps the API server and the app on loopback
+(`BIND_HOST`), replaces the placeholder platform key with a random one, and can run the built-in
+Bots on a Claude Pro/Max plan through the in-tree Claude Agent SDK harness (`SKIP_SAMPLE_BOTS`,
+`PICKED_HARNESS_*`, `ANTHROPIC_MODEL`). CopilotKit runtime telemetry ships off. See the comments in
+`.env.example` and [Configuration](docs/configuration.md).
+
 **The AI assistant your company can actually own.** Same shape as ChatGPT, Claude or Grok, with one difference that matters: it runs on your infrastructure and you can change anything about it. Any agent stack, through AG-UI.
 
 Each coworker gets a real browser with its own logins, its own files, and only the tools you grant. Every action decided before it happens and recorded after.
