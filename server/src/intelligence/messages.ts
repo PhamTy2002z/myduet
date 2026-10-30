@@ -179,3 +179,34 @@ export function foldEventsToMessages(
   }
   return messages;
 }
+
+/**
+ * A folded message as the hosted platform answers `GET …/messages`: tool calls as
+ * `{id, name, args}`, everything else unchanged.
+ *
+ * The fold keeps AG-UI's `{id, type, function: {name, arguments}}` because that is what runs and
+ * snapshots carry. Every server-side reader of history speaks the hosted dialect — the approval
+ * resume (`approvals/wiring.ts` `savedToolCall`), headless turns (`toolkit/src/run-turn.ts`
+ * `ThreadHistoryMessage`) — and finds no tool call at all in the other one. A call already in the
+ * hosted shape passes through.
+ */
+export function hostedMessage(
+  message: Record<string, unknown>,
+): Record<string, unknown> {
+  const calls = message.toolCalls;
+  if (!Array.isArray(calls) || calls.length === 0) return message;
+  return {
+    ...message,
+    toolCalls: calls.map((call: FoldToolCall | Record<string, unknown>) =>
+      "function" in call && call.function
+        ? {
+            id: call.id,
+            name: (call as FoldToolCall).function.name,
+            args: (call as FoldToolCall).function.arguments,
+          }
+        : call,
+    ),
+  };
+}
+
+type FoldToolCall = NonNullable<FoldMessage["toolCalls"]>[number];

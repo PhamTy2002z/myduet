@@ -1,5 +1,6 @@
 import { createHash, randomUUID, timingSafeEqual } from "node:crypto";
 import { Hono } from "hono";
+import { hostedMessage } from "./messages";
 import { foldState } from "./state";
 import {
   decodeThreadCursor,
@@ -225,7 +226,7 @@ export function createIntelligenceRestRoutes(
     const messages = await store.getMessages(c.req.param("id"));
     if (c.req.query("fields") === "id")
       return c.json({ messages: messages.map((m) => ({ id: m.id })) });
-    return c.json({ messages });
+    return c.json({ messages: messages.map(hostedMessage) });
   });
 
   // ---- locks, join codes, connect ------------------------------------------

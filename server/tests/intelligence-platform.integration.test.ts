@@ -3,8 +3,8 @@ import { createHash } from "node:crypto";
 import { createDatabase } from "../src/db/client";
 import { intelligenceThreadEvents } from "../src/db/schema/intelligence";
 import { createLocalIntelligence } from "../src/intelligence/index";
-import { buildZip } from "./support/zip";
 import { TEST_POOL, testDatabaseUrl } from "./support/database";
+import { buildZip } from "./support/zip";
 
 /**
  * The local Intelligence platform as the SDK's platform client speaks it:
@@ -1326,6 +1326,65 @@ describe("the hosted realtime control contract", () => {
     expect(
       messages.body.messages.map((m: PersistedMessageRow) => m.id),
     ).toEqual(["u1", "a1", "u2", "a2"]);
+  });
+
+  test("messages carry tool calls in the hosted shape, {id, name, args}", async () => {
+    const threadId = await thread();
+    const runId = `run-${unique()}`;
+    const event = (seq: number, payload: Record<string, unknown>) => ({
+      seq,
+      payload: {
+        ...payload,
+        threadId,
+        runId,
+        metadata: { cpki_event_id: `t${seq}`, cpki_event_seq: seq },
+      },
+    });
+    await app.store.appendEvents(threadId, runId, [
+      event(1, { type: "RUN_STARTED", input: { messages: [] } }),
+      event(2, {
+        type: "TOOL_CALL_START",
+        toolCallId: "call-1",
+        toolCallName: "computer_click",
+        parentMessageId: "a1",
+      }),
+      event(3, {
+        type: "TOOL_CALL_ARGS",
+        toolCallId: "call-1",
+        delta: '{"ref":"e1"}',
+      }),
+      event(4, { type: "TOOL_CALL_END", toolCallId: "call-1" }),
+    ]);
+    let messages = await call(
+      app,
+      `/api/threads/${threadId}/messages?userId=u1`,
+    );
+    expect(messages.body.messages).toEqual([
+      {
+        id: "a1",
+        role: "assistant",
+        content: "",
+        toolCalls: [
+          { id: "call-1", name: "computer_click", args: '{"ref":"e1"}' },
+        ],
+      },
+    ]);
+
+    await app.store.appendEvents(threadId, runId, [
+      event(5, {
+        type: "TOOL_CALL_RESULT",
+        toolCallId: "call-1",
+        messageId: "r1",
+        content: "clicked",
+      }),
+    ]);
+    messages = await call(app, `/api/threads/${threadId}/messages?userId=u1`);
+    expect(messages.body.messages[1]).toEqual({
+      id: "call-1-result",
+      role: "tool",
+      content: "clicked",
+      toolCallId: "call-1",
+    });
   });
 
   test("run start and finish publish thread_run_activity", async () => {
