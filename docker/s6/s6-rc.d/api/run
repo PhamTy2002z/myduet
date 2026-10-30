@@ -3,4 +3,7 @@
 # computer that is still coming up.
 cd /app/server
 export HOME=/home/apiuser
+# Every interface inside the container, whatever an --env-file .env says for a laptop: the published
+# port is what decides who can reach it. Set here, not as an image ENV, which --env-file overrides.
+export BIND_HOST=0.0.0.0
 exec s6-setuidgid apiuser /usr/local/bin/bun src/index.ts

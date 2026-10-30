@@ -56,11 +56,21 @@ SUPERVISOR_PORT="$(setting SUPERVISOR_PORT 4500)"
 # was ignored: the supervisor was still started and the server still told to use it.
 ONE_COMPUTER_EACH="$(setting OPENBOT_ONE_COMPUTER_EACH true)"
 export APP_PORT SERVER_PORT
-# The address the API server and the app listen on. Loopback unless .env says otherwise: a laptop's
-# stack is for this machine, and every Docker port in docker-compose.yml is loopback already. Put a
-# reverse proxy in front for anyone else, or name the address to serve on here.
-BIND_HOST="$(setting BIND_HOST 127.0.0.1)"
-export BIND_HOST
+# The address the API server and the app listen on. On macOS, loopback unless .env says otherwise: a
+# laptop's stack is for this machine, every Docker port in docker-compose.yml is loopback already,
+# and Docker Desktop delivers the Bots' calls to `host.docker.internal` on the host's loopback. On
+# Linux that name is the bridge gateway, which a loopback-only server refuses, so every interface
+# stays the default there; set BIND_HOST, or keep the host behind a firewall or reverse proxy.
+case "$(uname -s)" in
+  Darwin) DEFAULT_BIND_HOST=127.0.0.1 ;;
+  *) DEFAULT_BIND_HOST="" ;;
+esac
+BIND_HOST="$(setting BIND_HOST "$DEFAULT_BIND_HOST")"
+if [ -n "$BIND_HOST" ]; then
+  export BIND_HOST
+else
+  printf '\033[2m%s\033[0m\n' "Listening on every interface (BIND_HOST unset). Keep ports 3001 and 3010 behind a firewall or reverse proxy."
+fi
 SUPERVISOR_TOKEN="$(setting SUPERVISOR_TOKEN openbot-dev-supervisor-token)"
 COMPUTER_TOKEN="$(setting COMPUTER_TOKEN openbot-dev-computer-token)"
 # A fixed default is fine here, unlike `AGENT_TOOL_TOKEN` below, but not because of where the server
@@ -91,8 +101,12 @@ WORKER_SHARED_SECRET="$(setting WORKER_SHARED_SECRET openbot-dev-worker-secret)"
 SKIP_SAMPLE_BOTS="$(setting SKIP_SAMPLE_BOTS false)"
 if [ "$SKIP_SAMPLE_BOTS" != "true" ]; then
   MANAGED_AGENT_AG_UI_URL="$(setting MANAGED_AGENT_AG_UI_URL "http://localhost:${LANGGRAPH_PORT}/ag-ui")"
-  export MANAGED_AGENT_AG_UI_URL
+else
+  # Exported empty, so a line left in .env cannot point the server at a Bot this run never starts:
+  # `bun --env-file` does not override what the environment already holds, and blank means none.
+  MANAGED_AGENT_AG_UI_URL=""
 fi
+export MANAGED_AGENT_AG_UI_URL
 
 # Whether this run minted a secret that something already running may not have.
 #
@@ -150,8 +164,15 @@ export AGENT_TOOL_TOKEN
 # (docs/intelligence-platform.md), and .env.example ships a placeholder anyone can read. Replace it
 # once, the way the tokens above are made; a key for a hosted or self-hosted Intelligence is left
 # alone.
+# Whether the runtime's Intelligence is the built-in platform (server/src/intelligence), which is
+# this server; anything else is a hosted or self-hosted origin with its own key.
+INTELLIGENCE_URL="$(setting INTELLIGENCE_API_URL "http://localhost:${SERVER_PORT}/api/intelligence")"
+case "$INTELLIGENCE_URL" in
+  http://localhost:*/api/intelligence | http://127.0.0.1:*/api/intelligence) BUILT_IN_PLATFORM=true ;;
+  *) BUILT_IN_PLATFORM=false ;;
+esac
 PLATFORM_KEY="$(setting CPK_INTELLIGENCE_API_KEY "")"
-if [ -z "$(setting INTELLIGENCE_API_KEY "")" ] \
+if [ "$BUILT_IN_PLATFORM" = "true" ] && [ -z "$(setting INTELLIGENCE_API_KEY "")" ] \
    && { [ -z "$PLATFORM_KEY" ] || [ "$PLATFORM_KEY" = "local-intelligence" ]; }; then
   SECRETS_ROTATED=true
   PLATFORM_KEY="$(openssl rand -hex 32)"
@@ -354,13 +375,8 @@ fi
 # happens, and with nothing that can create it the line says exactly what to run.
 LEARNING_CONTAINER="$(setting CPK_INTELLIGENCE_LEARNING_CONTAINER_ID "")"
 LEARNING_AUTO_ASSIGN="$(setting OPENBOT_LEARNING_AUTO_ASSIGN true)"
-# The built-in platform (server/src/intelligence) is this server: its migration seeds `openbot`, and
-# setup-learning only knows how to reach a hosted or self-hosted Intelligence origin.
-INTELLIGENCE_URL="$(setting INTELLIGENCE_API_URL "http://localhost:${SERVER_PORT}/api/intelligence")"
-case "$INTELLIGENCE_URL" in
-  http://localhost:*/api/intelligence | http://127.0.0.1:*/api/intelligence) BUILT_IN_PLATFORM=true ;;
-  *) BUILT_IN_PLATFORM=false ;;
-esac
+# On the built-in platform the migration seeds `openbot`, and setup-learning only knows how to reach
+# a hosted or self-hosted Intelligence origin.
 if [ "$BUILT_IN_PLATFORM" = "true" ]; then
   info "  Automatic Learning: built-in platform, its openbot container is created by the migration."
 elif [ -z "$LEARNING_CONTAINER" ] && [ "$LEARNING_AUTO_ASSIGN" != "false" ] \

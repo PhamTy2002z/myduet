@@ -136,9 +136,15 @@ info "3/4  API server"
 stop_port "$SERVER_PORT" server
 
 info "4/4  Docker"
-# With the `harness` profile, so the picked harness goes down with the rest.
-if docker compose --profile harness ps --quiet 2>/dev/null | grep -q .; then
-  docker compose --profile harness down >/dev/null 2>&1
+# With the `harness` profile when a harness is picked, so it goes down with the rest. Only then:
+# with PICKED_HARNESS_IMAGE empty that service has no image, compose refuses the whole project, and
+# every command below would fail in silence and leave the stack running.
+COMPOSE=(docker compose)
+if [ -n "$(setting PICKED_HARNESS_IMAGE "")" ]; then
+  COMPOSE+=(--profile harness)
+fi
+if "${COMPOSE[@]}" ps --quiet 2>/dev/null | grep -q .; then
+  "${COMPOSE[@]}" down >/dev/null 2>&1
   green "  compose services: stopped"
 else
   info "  compose services: not running"
