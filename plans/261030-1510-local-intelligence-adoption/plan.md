@@ -44,7 +44,7 @@ local-Intelligence code, multi-replica fan-out, Helm chart changes.
 | # | Phase | Status | Effort |
 |---|-------|--------|--------|
 | 1 | [Boot with no CopilotKit account](./phase-01-boot-without-copilotkit-account.md) | Completed | 2h |
-| 2 | [Claude-plan model harness in the scripts](./phase-02-claude-plan-harness.md) | Pending | 1.5h |
+| 2 | [Claude-plan model harness in the scripts](./phase-02-claude-plan-harness.md) | Completed | 1.5h |
 | 3 | [Local-only binding and a generated platform key](./phase-03-local-binding-and-platform-key.md) | Pending | 1.5h |
 | 4 | [End-to-end verification and docs](./phase-04-e2e-verification-and-docs.md) | Pending | 2h |
 

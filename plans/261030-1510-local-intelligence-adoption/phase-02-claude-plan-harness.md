@@ -1,7 +1,7 @@
 ---
 phase: 2
 title: "Claude-plan model harness in the scripts"
-status: pending
+status: completed
 priority: P2
 effort: "1.5h"
 dependencies: [1]
@@ -40,3 +40,12 @@ skipped, and the plan model is selectable.
 - `bash -n scripts/start.sh scripts/stop.sh`.
 - Stack up with `SKIP_SAMPLE_BOTS=true`: harness healthy on 127.0.0.1:4212; `stop.sh` removes it.
 - Harness transcript shows the configured `ANTHROPIC_MODEL`.
+
+## Result (2026-10-30)
+- `start.sh`: `SKIP_SAMPLE_BOTS` skips both sample Bots and leaves `MANAGED_AGENT_AG_UI_URL` unset;
+  the picked harness is built (in-tree `openbot-agent-claude-sdk`), started (profile `harness`)
+  and health-checked. `stop.sh` takes the `harness` profile down.
+- `docker-compose.yml`: `ANTHROPIC_MODEL` reaches `agent-harness`. `.env.example` documents the
+  Claude-plan block.
+- Verified: `start.sh` → Ready with Bots `general-assistant, knowledge, picked-harness`; harness
+  on 127.0.0.1:4212; `stop.sh` leaves no `myduet-*` container.

@@ -136,8 +136,9 @@ info "3/4  API server"
 stop_port "$SERVER_PORT" server
 
 info "4/4  Docker"
-if docker compose ps --quiet 2>/dev/null | grep -q .; then
-  docker compose down >/dev/null 2>&1
+# With the `harness` profile, so the picked harness goes down with the rest.
+if docker compose --profile harness ps --quiet 2>/dev/null | grep -q .; then
+  docker compose --profile harness down >/dev/null 2>&1
   green "  compose services: stopped"
 else
   info "  compose services: not running"

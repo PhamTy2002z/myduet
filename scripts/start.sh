@@ -80,8 +80,14 @@ WORKER_SHARED_SECRET="$(setting WORKER_SHARED_SECRET openbot-dev-worker-secret)"
 # The laptop stack runs agent-langgraph on LANGGRAPH_PORT. The one-container image does not, so
 # this default stays in the script rather than in .env: a `docker run --env-file .env` must not
 # inherit a URL that points at a process the image does not contain.
-MANAGED_AGENT_AG_UI_URL="$(setting MANAGED_AGENT_AG_UI_URL "http://localhost:${LANGGRAPH_PORT}/ag-ui")"
-export MANAGED_AGENT_AG_UI_URL
+# SKIP_SAMPLE_BOTS=true runs only the built-in Bots, for a deployment with no OpenAI or Anthropic key
+# (a Claude plan through the picked harness, say): the two sample Bots refuse to start without one,
+# and no managed coworker endpoint is set for a process that is not running.
+SKIP_SAMPLE_BOTS="$(setting SKIP_SAMPLE_BOTS false)"
+if [ "$SKIP_SAMPLE_BOTS" != "true" ]; then
+  MANAGED_AGENT_AG_UI_URL="$(setting MANAGED_AGENT_AG_UI_URL "http://localhost:${LANGGRAPH_PORT}/ag-ui")"
+  export MANAGED_AGENT_AG_UI_URL
+fi
 
 # Whether this run minted a secret that something already running may not have.
 #
@@ -244,12 +250,14 @@ fi
 SERVICES+=(agent-computer)
 # The managed coworker uses LangGraph. The separate legacy sample only accepts OpenAI keys,
 # so requiring it would prevent an Anthropic-only deployment from reaching its managed Bot.
-if [ "$BOT_PROVIDER" = "anthropic" ]; then
+if [ "$SKIP_SAMPLE_BOTS" = "true" ]; then
+  info "  agent-bot, agent-langgraph: skipped (SKIP_SAMPLE_BOTS=true)"
+elif [ "$BOT_PROVIDER" = "anthropic" ]; then
   info "  agent-bot: skipped for Anthropic (OpenAI-only sample)"
+  SERVICES+=(agent-langgraph)
 else
-  SERVICES+=(agent-bot)
+  SERVICES+=(agent-bot agent-langgraph)
 fi
-SERVICES+=(agent-langgraph)
 
 export SUPERVISOR_TOKEN COMPUTER_TOKEN WORKER_SHARED_SECRET
 export COMPUTER_PORT BOT_PORT LANGGRAPH_PORT SUPERVISOR_PORT
@@ -265,10 +273,33 @@ if ! docker compose run --rm --build migrate >"$LOGS/migrate.log" 2>&1; then
   exit 1
 fi
 wait_for "http://localhost:$COMPUTER_PORT/health" "agent-computer"
-if [ "$BOT_PROVIDER" != "anthropic" ]; then
-  wait_for "http://localhost:$BOT_PORT/health" "agent-bot"
+if [ "$SKIP_SAMPLE_BOTS" != "true" ]; then
+  if [ "$BOT_PROVIDER" != "anthropic" ]; then
+    wait_for "http://localhost:$BOT_PORT/health" "agent-bot"
+  fi
+  wait_for "http://localhost:$LANGGRAPH_PORT/health" "agent-langgraph"
 fi
-wait_for "http://localhost:$LANGGRAPH_PORT/health" "agent-langgraph"
+
+# The picked harness (compose profile `harness`), which built-in Bots run on when a model plan is
+# signed in to (server/src/agents/plan-model.ts). Compose cannot build it: its image is a variable.
+# The Claude Agent SDK harness lives in this tree, so its local image is built here; any other
+# image is expected to exist or be pullable.
+PICKED_HARNESS_IMAGE="$(setting PICKED_HARNESS_IMAGE "")"
+if [ -n "$PICKED_HARNESS_IMAGE" ]; then
+  PICKED_HARNESS_PORT="$(setting PICKED_HARNESS_PORT 4202)"
+  case "$PICKED_HARNESS_IMAGE" in
+    openbot-agent-claude-sdk | openbot-agent-claude-sdk:*)
+      if ! docker build -t "$PICKED_HARNESS_IMAGE" -f agent-claude-sdk/Dockerfile . >"$LOGS/harness-build.log" 2>&1; then
+        red "  agent-harness: the image did not build."
+        red "  Log: $LOGS/harness-build.log"
+        exit 1
+      fi
+      ;;
+  esac
+  export PICKED_HARNESS_PORT
+  COMPOSE_PROGRESS=quiet docker compose --profile harness up -d agent-harness >/dev/null
+  wait_for "http://localhost:$PICKED_HARNESS_PORT/health" "agent-harness"
+fi
 
 for table in agent_profiles agent_preferences; do
   if ! docker compose exec -T postgres \
@@ -289,7 +320,9 @@ green "  coworker tables migrated"
 # pipeline, and `set -e` then aborts the assignment before the check below could say why. The same
 # grep survives inside `setting()` only because `local v="$(...)"` takes `local`'s own exit status
 # and masks it. So: report what was resolved, and do not re-read the file.
-green "  managed coworker endpoint: $MANAGED_AGENT_AG_UI_URL"
+if [ -n "${MANAGED_AGENT_AG_UI_URL:-}" ]; then
+  green "  managed coworker endpoint: $MANAGED_AGENT_AG_UI_URL"
+fi
 
 # Automatic Learning collects nothing until a container is assigned. The server assigns this
 # project's `openbot` container on its own once it exists (server/src/learning/auto-assign.ts), but
