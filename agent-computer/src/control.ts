@@ -28,7 +28,10 @@ export class ControlRequestError extends Error {
 }
 export class SnapshotRequiredError extends Error {
   constructor() {
-    super("Take a fresh browser snapshot after handback before acting.");
+    // Said to the model, which reads a bare "take a snapshot" with no handback in sight as a dead end.
+    super(
+      "The browser was restarted or handed back since you last looked. Call computer_snapshot, then repeat this action.",
+    );
     this.name = "SnapshotRequiredError";
   }
 }
