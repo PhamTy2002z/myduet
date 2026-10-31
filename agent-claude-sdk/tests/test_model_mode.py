@@ -112,3 +112,27 @@ def test_model_history_keeps_role_labels_and_real_image_blocks():
         "type": "image",
         "source": {"type": "base64", "media_type": "image/png", "data": "AQID"},
     } in content
+
+
+def test_agent_endpoint_offers_no_claude_code_built_ins():
+    adapter = OpenBotClaudeAgentAdapter(name="openbot")
+    request = RunAgentInput.model_validate(
+        {
+            "threadId": "channel",
+            "runId": "run",
+            "state": {},
+            "messages": [{"id": "user", "role": "user", "content": "Open a page"}],
+            "tools": [
+                {
+                    "name": "computer_navigate",
+                    "description": "Open a page",
+                    "parameters": {"type": "object", "properties": {}},
+                }
+            ],
+            "context": [],
+            "forwardedProps": {},
+        }
+    )
+    options = adapter.build_options(request, request.thread_id)
+    assert options.tools == []
+    assert "ag_ui" in options.mcp_servers

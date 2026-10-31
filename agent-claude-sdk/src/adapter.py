@@ -93,8 +93,12 @@ class OpenBotClaudeAgentAdapter(ClaudeAgentAdapter):
                 ),
             ],
         }
+        # No Claude Code built-ins on either endpoint, so every tool a Bot has is one the OpenBot
+        # server offered and governs. Bash here would run beside this container's plan token and
+        # tool token on a page's say-so, and nobody is there to answer its permission prompt, so it
+        # only ever failed and sent the Bot off its own browser. SDK 0.2.152 maps [] to --tools "".
+        options.tools = []
         if self._model_only:
-            options.tools = []  # SDK 0.2.152 maps this to --tools "": no Bash/Read/Edit.
             options.setting_sources = []
             options.strict_mcp_config = True
             options.permission_mode = "dontAsk"
