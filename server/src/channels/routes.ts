@@ -27,6 +27,7 @@ import {
   channelMemberships,
   channels,
   intelligenceChannelMappings,
+  workItems,
 } from "../db/schema";
 import { parsePageLimit } from "../paging";
 import {
@@ -782,6 +783,29 @@ export function createChannelStore(
            * `channel.deleted` row to an append-only trail for a deletion that had not happened.
            */
           if (stamped.length === 0) return false;
+
+          /*
+           * A question asked in this conversation can no longer be answered there, so it stops
+           * waiting. Left open it kept the Bot's "needs you" badge and an Activity row pointing at a
+           * conversation that no longer opens. Matched by channel, or by the channel's threads for a
+           * question that carried only its thread.
+           */
+          await transaction
+            .update(workItems)
+            .set({
+              finishedAt: new Date(),
+              lastError: "The conversation was deleted.",
+            })
+            .where(
+              and(
+                eq(workItems.kind, "person.question"),
+                isNull(workItems.finishedAt),
+                or(
+                  sql`${workItems.payload}->>'channelId' = ${channelId}`,
+                  sql`${workItems.payload}->>'threadId' in (select ${intelligenceChannelMappings.threadId} from ${intelligenceChannelMappings} where ${intelligenceChannelMappings.channelId} = ${channelId})`,
+                ),
+              ),
+            );
 
           // Read on this transaction, so the members told are the ones the channel had when it was
           // hidden. Soft leaves the membership rows in place, so this reads the same list a repeat

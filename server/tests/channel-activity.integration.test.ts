@@ -18,6 +18,7 @@ import {
   channels,
   intelligenceChannelMappings,
   users,
+  workItems,
 } from "../src/db/schema";
 import { TEST_POOL, testDatabaseUrl } from "./support/database";
 
@@ -537,5 +538,47 @@ describe("finding or making a person's channel with one Bot", () => {
 
     expect(found.id).not.toBe(shared.id);
     expect(found.agentIds).toEqual([agentId]);
+  });
+});
+
+describe("deleting a conversation", () => {
+  test("stops the questions asked in it from waiting on the person", async () => {
+    const owner = await createUser();
+    const agentId = await createAgent(owner);
+    const channel = await createChannel(owner, [agentId]);
+    const kept = await createChannel(owner, [
+      await createAgent(owner, "Other"),
+    ]);
+    const question = (key: string, channelId: string) => ({
+      kind: "person.question",
+      key: `${testPrefix}-${key}`,
+      payload: {
+        actorId: owner.id,
+        botId: agentId,
+        channelId,
+        question: "Renew?",
+      },
+    });
+    await database
+      .insert(workItems)
+      .values([question("gone", channel.id), question("kept", kept.id)]);
+    try {
+      await store.softDelete(owner, channel.id);
+      const rows = await database
+        .select({ key: workItems.key, finishedAt: workItems.finishedAt })
+        .from(workItems)
+        .where(sql`${workItems.key} like ${`${testPrefix}-%`}`);
+      const finished = Object.fromEntries(
+        rows.map((row) => [row.key, row.finishedAt !== null]),
+      );
+      expect(finished).toEqual({
+        [`${testPrefix}-gone`]: true,
+        [`${testPrefix}-kept`]: false,
+      });
+    } finally {
+      await database
+        .delete(workItems)
+        .where(sql`${workItems.key} like ${`${testPrefix}-%`}`);
+    }
   });
 });
