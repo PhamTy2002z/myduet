@@ -186,6 +186,19 @@ export const intelligenceMemories = pgTable(
   },
   (table) => [
     index("intelligence_memories_user_idx").on(table.userId, table.createdAt),
+    // Recall's expression: `simple` because English stemming does nothing for Vietnamese, and
+    // unaccented so "hop dong" finds "hợp đồng". With the substring index below, recall's OR becomes
+    // a BitmapOr once a person has many memories; with few, the per-person index wins. See
+    // recallMemories.
+    index("intelligence_memories_search_idx").using(
+      "gin",
+      sql`to_tsvector('simple', myduet_unaccent(${table.content}))`,
+    ),
+    // The substring pass for short queries, so recall's OR can use an index on both sides.
+    index("intelligence_memories_substring_idx").using(
+      "gin",
+      sql`lower(myduet_unaccent(${table.content})) gin_trgm_ops`,
+    ),
   ],
 );
 

@@ -370,6 +370,55 @@ describe("memories", () => {
     });
     expect(retired.status).toBe(200);
   });
+
+  test("recalls Vietnamese with or without diacritics, in any case", async () => {
+    const headers = { "x-cpki-user-id": userId() };
+    await call(app, "/api/memories", {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        content: "Hợp đồng với Đông Á gia hạn vào tháng 12",
+        kind: "topical",
+        scope: "user",
+      }),
+    });
+    await call(app, "/api/memories", {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        content: "prefers meetings in the morning",
+        kind: "topical",
+        scope: "user",
+      }),
+    });
+
+    const recall = async (query: string) =>
+      (
+        await call(app, "/api/memories/recall", {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ query, limit: 5 }),
+        })
+      ).body.memories.map((memory: { content: string }) => memory.content);
+
+    for (const query of [
+      "hợp đồng",
+      "hop dong",
+      "HỢP ĐỒNG",
+      "dong a",
+      "Đông Á",
+    ]) {
+      expect(await recall(query)).toEqual([
+        "Hợp đồng với Đông Á gia hạn vào tháng 12",
+      ]);
+    }
+    expect(await recall("meetings morning")).toEqual([
+      "prefers meetings in the morning",
+    ]);
+    // LIKE wildcards in a query are text, not "everything".
+    expect(await recall("%")).toEqual([]);
+    expect(await recall("_")).toEqual([]);
+  });
 });
 
 describe("entitlements, learning and files", () => {

@@ -137,7 +137,10 @@ Worth knowing before relying on it:
 - **The Learning engine.** Containers and Skill snapshots are served, so published skills work.
   `POST .../runs` answers `LEARNING_ENGINE_UNAVAILABLE`, and the runs and candidates pages are empty.
 - **Semantic memory recall.** Recall is lexical — Postgres full text plus a substring pass for short
-  queries — and near-duplicate absorption compares normalised text rather than embeddings.
+  queries — and near-duplicate absorption compares normalised text rather than embeddings. The text
+  search uses the `simple` configuration over unaccented text (`0901_vietnamese_search`), so it does
+  not stem English, and a Vietnamese query typed without diacritics ("hop dong") still finds
+  "hợp đồng".
 - **Trajectory persistence.** `/trajectories/join` mints the token and the `trajectory:` topic relays,
   but the events are not stored.
 - **Annotation analytics.** `PUT /connector/annotate/:id` accepts and records nothing.

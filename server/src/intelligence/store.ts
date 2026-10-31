@@ -132,6 +132,11 @@ const LOCK_TTL_SECONDS = 120;
  */
 const REPLAY_PAGE_SIZE = 2000;
 
+/** `%`, `_` and `\` in a person's query are text to find, not LIKE wildcards. */
+function likeLiteral(text: string): string {
+  return text.replace(/[\\%_]/g, (character) => `\\${character}`);
+}
+
 export class IntelligenceStore {
   constructor(private readonly db: Database) {}
 
@@ -887,6 +892,10 @@ export class IntelligenceStore {
    * Ranked recall over the person's live memories: Postgres full text, ranked and
    * intersected with a trigram-free containment pass so short queries that miss the
    * tsvector config still find their rows.
+   *
+   * `simple` and unaccented on both sides, matching `intelligence_memories_search_idx`:
+   * English stemming does nothing for Vietnamese, and a query typed without diacritics
+   * ("hop dong") has to find the memory written with them ("hợp đồng").
    */
   async recallMemories(
     userId: string,
@@ -894,10 +903,13 @@ export class IntelligenceStore {
     limit: number,
     scope?: string,
   ) {
+    const document = sql`to_tsvector('simple', myduet_unaccent(${intelligenceMemories.content}))`;
+    const terms = sql`plainto_tsquery('simple', myduet_unaccent(${query}))`;
+    const rank = sql<number>`ts_rank(${document}, ${terms})`;
     const rows = await this.db
       .select({
         row: intelligenceMemories,
-        score: sql<number>`ts_rank(to_tsvector('english', ${intelligenceMemories.content}), plainto_tsquery('english', ${query}))`,
+        score: rank,
       })
       .from(intelligenceMemories)
       .where(
@@ -906,16 +918,12 @@ export class IntelligenceStore {
           isNull(intelligenceMemories.invalidatedAt),
           ...(scope ? [eq(intelligenceMemories.scope, scope)] : []),
           or(
-            sql`to_tsvector('english', ${intelligenceMemories.content}) @@ plainto_tsquery('english', ${query})`,
-            sql`lower(${intelligenceMemories.content}) LIKE '%' || lower(${query}) || '%'`,
+            sql`${document} @@ ${terms}`,
+            sql`lower(myduet_unaccent(${intelligenceMemories.content})) LIKE '%' || lower(myduet_unaccent(${likeLiteral(query)})) || '%' ESCAPE '\\'`,
           ),
         ),
       )
-      .orderBy(
-        desc(
-          sql`ts_rank(to_tsvector('english', ${intelligenceMemories.content}), plainto_tsquery('english', ${query}))`,
-        ),
-      )
+      .orderBy(desc(rank))
       .limit(limit);
     return rows;
   }
