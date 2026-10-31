@@ -204,9 +204,41 @@ values ('<sha256 of server/drizzle/<tag>.sql>', <that entry's "when" in meta/_jo
 
 ## Replicas
 
-The page snapshot a Bot resolves element references against lives in Postgres, so a second replica
-can answer a click the first one snapshotted. Run more than one if the platform wants it. The
-supervisor is still not in this image, so every replica shares the one browser inside it.
+**On the built-in Intelligence platform, run exactly one replica.** It fans realtime out inside one
+process ([Intelligence platform](intelligence-platform.md)), so a second replica would split a
+conversation's stream. The Helm chart defaults to one and refuses more while
+`config.intelligence` is empty.
+
+With a hosted Intelligence, the page snapshot a Bot resolves element references against lives in
+Postgres, so a second replica can answer a click the first one snapshotted. The supervisor is still
+not in this image, so every replica shares the one browser inside it.
+
+## Readiness
+
+`GET /health` answers while the process is up. `GET /ready` also asks Postgres (`select 1`, 2 s
+timeout) and answers 503 when it does not reply. The answer is cached for 3 s and asked again after
+that, so it recovers by itself when the database comes back. The Helm readiness probe and the
+compose healthcheck use `/ready`, and liveness stays on `/health`, so a database outage takes the
+server out of rotation without restarting it.
+
+## Backup and restore
+
+Everything a deployment holds, including conversations, memories, Bots and the audit trail, is in
+Postgres. For the compose stack:
+
+```sh
+bash scripts/backup.sh                          # ./backups/openbot-<time>.dump, verified, 7 days kept
+BACKUP_DIR=/srv/backups BACKUP_RETAIN_DAYS=30 bash scripts/backup.sh
+bash scripts/restore.sh backups/<file>.dump     # shows what it holds, changes nothing
+bash scripts/restore.sh backups/<file>.dump --yes
+```
+
+A dump is kept only after `pg_restore --list` reads it back. Restore replaces the current database
+in one transaction, and refuses while the API server answers. Stop it first with
+`scripts/stop.sh`, then run `docker compose up -d postgres`, restore, and start again. Schedule the
+backup with cron or a systemd timer, and copy `BACKUP_DIR` off the machine. A backup on the same disk
+does not survive that disk failing. On Kubernetes, use your database operator's or cloud provider's
+backups instead.
 
 ## Platform notes
 

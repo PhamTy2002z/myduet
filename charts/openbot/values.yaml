@@ -24,9 +24,10 @@ image:
 imagePullSecrets: []
 
 server:
-  replicaCount: 2
-  # Two by default because horizontal is the point. Everything that has to survive a replica is in
-  # PostgreSQL, and one replica hides every bug that is not.
+  replicaCount: 1
+  # One, because the built-in Intelligence platform fans realtime out inside one process (see
+  # docs/intelligence-platform.md). Raise it only with config.intelligence pointing at a hosted
+  # Intelligence; validation refuses more than one replica on the built-in platform.
 
   # THE BROWSER IS NOT IN THIS POD. The image runs a Bot's computer beside the API for the
   # one-container case; a replica of the API must not carry one, because a browser is a few hundred
@@ -166,9 +167,9 @@ config:
       issuer: ""
   tenantPackageDir: /app/examples/fintech
 
-  # CopilotKit Intelligence, which OpenBot requires. All four values are needed together: the server
-  # refuses to start on a partial set, deliberately, because a half-configured Intelligence is a
-  # mistake somebody made rather than a deployment that meant to run without one.
+  # Both empty: the server runs the built-in Intelligence platform itself, and
+  # secrets.intelligenceApiKey is its platform key. Both set: a hosted CopilotKit Intelligence.
+  # One without the other is refused at install.
   intelligence:
     apiUrl: ""
     gatewayWsUrl: ""

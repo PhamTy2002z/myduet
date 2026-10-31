@@ -68,17 +68,24 @@ This template renders nothing.
 {{- end }}
 
 {{- /*
-  Intelligence, which is not optional.
+  Intelligence: a hosted one, or the platform the server runs itself.
 
-  The three addressing values are required together and the server refuses to start on a partial
-  set, so the same rule is applied here: caught at install with the values named, rather than in a
-  crash loop whose message is in a log nobody has opened.
+  Both addresses empty means the built-in platform (docs/intelligence-platform.md), and
+  secrets.intelligenceApiKey is then its platform key. One address without the other is a mistake,
+  caught here with the values named rather than in a crash loop.
+
+  The built-in platform fans realtime out inside one process, so it runs as exactly one replica.
+  A second one would split a conversation's stream between pods.
 
   `secrets.licenseToken` is NOT among them. Managed Intelligence issues no licence token, so
   requiring one here would block an install the server would have accepted.
 */}}
-{{- if or (not .Values.config.intelligence.apiUrl) (not .Values.config.intelligence.gatewayWsUrl) }}
-{{- fail "OpenBot requires CopilotKit Intelligence. Set config.intelligence.apiUrl and config.intelligence.gatewayWsUrl, and the matching secrets.intelligenceApiKey." }}
+{{- $intelligenceUrls := list .Values.config.intelligence.apiUrl .Values.config.intelligence.gatewayWsUrl | compact | len }}
+{{- if eq $intelligenceUrls 1 }}
+{{- fail "Set both config.intelligence.apiUrl and config.intelligence.gatewayWsUrl for a hosted Intelligence, or neither for the built-in platform." }}
+{{- end }}
+{{- if and (eq $intelligenceUrls 0) (or (gt (int .Values.server.replicaCount) 1) .Values.server.autoscaling.enabled) }}
+{{- fail "The built-in Intelligence platform runs in one server process. Set server.replicaCount=1 and server.autoscaling.enabled=false, or point config.intelligence at a hosted Intelligence." }}
 {{- end }}
 
 {{- /*

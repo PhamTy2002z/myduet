@@ -53,6 +53,8 @@ export function startHttpServer(deps: {
   ) => Promise<{ id: string; name: string; role: OpenBotRole }>;
   agentProfileStore: AgentProfileStore;
   computerGateway: ComputerGateway | undefined;
+  /** Answers `/ready`: whether the database behind this server answers. Absent, `/ready` is 404. */
+  ready?: () => Promise<boolean>;
   /** The in-repo Intelligence platform: REST routes and the Phoenix gateway. */
   intelligence?: {
     rest: { fetch: (request: Request) => Response | Promise<Response> };
@@ -79,6 +81,7 @@ export function startHttpServer(deps: {
     resolveRequestActor,
     agentProfileStore,
     computerGateway,
+    ready,
     intelligence,
     app,
   } = deps;
@@ -118,6 +121,11 @@ export function startHttpServer(deps: {
     port,
     async fetch(request, server) {
       const url = new URL(request.url);
+      if (ready && url.pathname === "/ready" && request.method === "GET") {
+        return (await ready())
+          ? Response.json({ status: "ready" })
+          : Response.json({ status: "unavailable" }, { status: 503 });
+      }
       // The local Intelligence platform: REST under its base, the three Phoenix
       // planes on the gateway base plus /runner, /client, /channels.
       if (intelligence) {

@@ -257,6 +257,13 @@ jobs:
           # A browser inside every replica of a replicated API.
           refuses "an embedded browser across several replicas" \
             --set server.embeddedComputer=true --set server.replicaCount=2
+          # The built-in Intelligence platform, which fans realtime out in one process, replicated.
+          refuses "the built-in Intelligence platform across several replicas" \
+            --set-string config.intelligence.apiUrl= --set-string config.intelligence.gatewayWsUrl= \
+            --set server.autoscaling.enabled=false --set server.replicaCount=2
+          # One Intelligence address without the other.
+          refuses "a hosted Intelligence API with no gateway" \
+            --set-string config.intelligence.gatewayWsUrl=
           # A Bot's egress proxy on a port the computer's own network policy does not allow. The
           # variables reach the computer through extraEnv, so nothing else notices that the policy
           # then refuses to let it be reached.

@@ -170,6 +170,7 @@ import {
 } from "./host-access/broker";
 import { hostAccessTools } from "./host-access/tools";
 import { startHttpServer } from "./http-server";
+import { createReadiness } from "./readiness";
 import { createLocalIntelligence } from "./intelligence";
 import { githubCallbackRoutes } from "./identity/github-callback";
 import { retireIdentityLinks, retireOwnedAccounts } from "./identity/retire";
@@ -2796,6 +2797,7 @@ startHttpServer({
   resolveRequestActor,
   agentProfileStore,
   computerGateway,
+  ready: createReadiness(() => database.execute(sql`select 1`)),
   intelligence: localIntelligence,
   app,
 });

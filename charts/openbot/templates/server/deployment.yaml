@@ -138,7 +138,7 @@ spec:
             failureThreshold: {{ .Values.server.startupProbe.failureThreshold }}
           readinessProbe:
             httpGet:
-              path: /health
+              path: /ready
               port: http
             initialDelaySeconds: {{ .Values.server.readinessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.server.readinessProbe.periodSeconds }}

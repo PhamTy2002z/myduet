@@ -18,7 +18,15 @@ architecture you have and push it somewhere the cluster can reach. Check before 
 docker manifest inspect ghcr.io/copilotkit/openbot:v0.0.9 | grep architecture
 ```
 
-**Intelligence credentials.** OpenBot requires CopilotKit Intelligence and the chart refuses to
+**Built-in Intelligence.** Leave `config.intelligence.apiUrl` and `gatewayWsUrl` empty and the
+server runs the Intelligence platform itself (`docs/intelligence-platform.md`). Then
+`secrets.intelligenceApiKey` is that platform's own key (`openssl rand -hex 32`), and the server
+must stay at one replica with autoscaling off; the chart refuses anything else.
+`server.replicaCount` now defaults to 1, where it used to be 2. An install on a hosted
+Intelligence that relied on the old default should set `server.replicaCount: 2` before upgrading.
+With one replica, no PodDisruptionBudget is rendered.
+
+**Intelligence credentials.** For a hosted CopilotKit Intelligence, the chart refuses to
 install without `secrets.intelligenceApiKey`. It comes from the CLI, on any machine with a browser:
 
 ```sh
