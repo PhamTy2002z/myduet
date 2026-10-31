@@ -128,7 +128,7 @@ export function ApprovalSettings() {
                   >
                     {enforced ? "An admin requires this. " : ""}
                     Before a Bot does something that could affect your accounts
-                    or share information, OpenBot checks it against your request
+                    or share information, LeoDuet checks it against your request
                     and your rules. If it can't tell, it asks you.
                   </ItemDescription>
                 </ItemContent>

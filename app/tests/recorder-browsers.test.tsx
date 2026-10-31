@@ -257,7 +257,7 @@ for (const [how, sentence] of [
     ).toBeTruthy();
   });
 
-test("a trusted OpenBot's connect, answered connected with no Connect page, reads Connected at once and never asks the person to confirm", async () => {
+test("a trusted LeoDuet's connect, answered connected with no Connect page, reads Connected at once and never asks the person to confirm", async () => {
   recorder = {
     ping: { ok: true },
     connect: { ok: true, version: "1", installId: THIS_COPY, connected: true },
@@ -327,7 +327,7 @@ test("a pinned-elsewhere refusal shows its sentence", async () => {
     await view.findByRole("button", { name: "Connect this browser" }),
   );
   await view.findByText(
-    "Your organization set the Recorder to another OpenBot.",
+    "Your organization set the Recorder to another LeoDuet.",
   );
 });
 
@@ -374,23 +374,23 @@ test("an answer with no sentence of its own still gets one", async () => {
   await view.findByText("The Recorder didn't accept the request. Try again.");
 });
 
-test("the OpenBot browser's connection says it is the person's OpenBot browser", async () => {
+test("the LeoDuet browser's connection says it is the person's LeoDuet browser", async () => {
   connections = [
     connection({
       id: "conn-2",
-      label: "OpenBot browser",
+      label: "LeoDuet browser",
       via: "openbot-browser",
       installId: "b".repeat(32),
     }),
   ];
   const view = draw(<ConnectedBrowsers />);
-  await view.findByText("OpenBot browser");
+  await view.findByText("LeoDuet browser");
   const at = new Intl.DateTimeFormat(undefined, {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(String(connections[0]?.createdAt)));
   expect(
-    view.getByText(`Your OpenBot browser, connected ${at}, never used`),
+    view.getByText(`Your LeoDuet browser, connected ${at}, never used`),
   ).toBeTruthy();
 });
 
@@ -418,7 +418,7 @@ test("a browser recording now says so instead of when it was last used, and the 
       dateStyle: "medium",
       timeStyle: "short",
     }).format(new Date(String(connections[0]?.createdAt)));
-    await view.findByText(/^Connected .* from OpenBot, last used /);
+    await view.findByText(/^Connected .* from LeoDuet, last used /);
     // The browser starts recording; the screen hears of it on its next ask, with no reload.
     connections = [connection({ lastUsedAt, recording: true })];
     expect(polls.length).toBeGreaterThan(0);
@@ -426,7 +426,7 @@ test("a browser recording now says so instead of when it was last used, and the 
     act(() => {
       for (const poll of polls) poll();
     });
-    await view.findByText(`Connected ${at} from OpenBot, recording now`);
+    await view.findByText(`Connected ${at} from LeoDuet, recording now`);
     expect(connectionsFetches).toBeGreaterThan(asked);
     expect(view.queryByText(/last used/)).toBeNull();
   } finally {
@@ -443,7 +443,7 @@ test("Disconnect sends the DELETE and the row disappears", async () => {
     timeStyle: "short",
   }).format(new Date(String(connections[0]?.createdAt)));
   expect(
-    view.getByText(`Connected ${at} from OpenBot, never used`),
+    view.getByText(`Connected ${at} from LeoDuet, never used`),
   ).toBeTruthy();
   fireEvent.click(
     view.getByRole("button", { name: "Disconnect Chrome on Mac" }),
@@ -454,7 +454,7 @@ test("Disconnect sends the DELETE and the row disappears", async () => {
   });
   // Named as the row is: it is not known to be this browser, so the dialog does not say it is.
   expect(dialog.textContent).toContain(
-    "OpenBot signs the Recorder in Chrome on Mac out. It records nothing for you until you connect it again, and a recording running there stops.",
+    "LeoDuet signs the Recorder in Chrome on Mac out. It records nothing for you until you connect it again, and a recording running there stops.",
   );
   expect(dialog.textContent).not.toContain("this browser");
   expect(sent).toEqual([]);
@@ -504,7 +504,7 @@ test("the Disconnect dialog says this browser only on this browser's row, and na
     }),
     connection({
       id: "conn-3",
-      label: "OpenBot browser",
+      label: "LeoDuet browser",
       via: "openbot-browser",
       installId: "e".repeat(32),
     }),
@@ -519,13 +519,13 @@ test("the Disconnect dialog says this browser only on this browser's row, and na
     return text;
   };
   expect(await said("Disconnect Chrome on Mac · This browser")).toStartWith(
-    "OpenBot signs the Recorder in this browser out.",
+    "LeoDuet signs the Recorder in this browser out.",
   );
   expect(await said("Disconnect Edge on Windows")).toStartWith(
-    "OpenBot signs the Recorder in Edge on Windows out.",
+    "LeoDuet signs the Recorder in Edge on Windows out.",
   );
-  expect(await said("Disconnect OpenBot browser")).toStartWith(
-    "OpenBot signs the Recorder in your OpenBot browser out.",
+  expect(await said("Disconnect LeoDuet browser")).toStartWith(
+    "LeoDuet signs the Recorder in your LeoDuet browser out.",
   );
   expect(sent).toEqual([]);
 });
@@ -741,7 +741,7 @@ test("the copy in this browser is marked among connected browsers that share a n
   ).toBeTruthy();
   // Two copies connected two hours ago, a minute apart, read differently.
   const descriptions = view
-    .getAllByText(/^Connected .* from OpenBot, last used /)
+    .getAllByText(/^Connected .* from LeoDuet, last used /)
     .map((element) => element.textContent);
   expect(new Set(descriptions).size).toBe(3);
 });

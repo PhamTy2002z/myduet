@@ -4,6 +4,7 @@ import { Link, type LinkOptions, useParams } from "@tanstack/react-router";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import type * as React from "react";
 import { useRef, useState } from "react";
+import { BrandMark } from "@/components/brand-mark";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -228,6 +229,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className="font-semibold text-[14px] tracking-tighter h-full leading-tight"
               render={(props) => (
                 <Link {...appLinkOptions} {...props}>
+                  <BrandMark className="h-4 w-[18px]" />
                   {appConfig.brand.productName}
                 </Link>
               )}

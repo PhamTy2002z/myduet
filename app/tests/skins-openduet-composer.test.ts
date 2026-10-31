@@ -11,7 +11,7 @@ import { readdirSync, readFileSync } from "node:fs";
 const read = (path: string) =>
   readFileSync(new URL(path, import.meta.url), "utf8");
 
-test("OpenBot marks a conversation's composer column with its hook", () => {
+test("LeoDuet marks a conversation's composer column with its hook", () => {
   const view = read("../src/components/channels/conversation-view.tsx");
   expect(view).toMatch(
     /<div\s+className="[^"]*"\s+data-slot="composer-column"\s*>\s*\{notice\}\s*<Composer/,

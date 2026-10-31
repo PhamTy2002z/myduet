@@ -278,7 +278,7 @@ test("an isolated Bot's Visibility row says, before it is made public and while 
   const shared = draw();
   expect(
     await shared.findByText(
-      `Everyone on OpenBot can find and use it. ${ISOLATED_PUBLIC_SHARES_LOGINS}`,
+      `Everyone on LeoDuet can find and use it. ${ISOLATED_PUBLIC_SHARES_LOGINS}`,
     ),
   ).toBeTruthy();
   cleanup();
@@ -287,7 +287,7 @@ test("an isolated Bot's Visibility row says, before it is made public and while 
   serve(MANAGED, actor.id, { visibility: "public" });
   const plain = draw();
   expect(
-    await plain.findByText("Everyone on OpenBot can find and use it."),
+    await plain.findByText("Everyone on LeoDuet can find and use it."),
   ).toBeTruthy();
 });
 

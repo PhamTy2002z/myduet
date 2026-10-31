@@ -357,7 +357,7 @@ function TriggerRow({
             </div>
           ) : (
             <p className="text-amber-600 text-xs dark:text-amber-500">
-              Email isn't set up on OpenBot yet, so this address can't receive
+              Email isn't set up on LeoDuet yet, so this address can't receive
               mail. An admin has to turn it on.
             </p>
           ))}
@@ -531,7 +531,7 @@ function NewTriggerDialog({
         <DialogHeader>
           <DialogTitle>Add trigger</DialogTitle>
           <DialogDescription>
-            Something outside OpenBot that starts this responsibility.
+            Something outside LeoDuet that starts this responsibility.
           </DialogDescription>
         </DialogHeader>
         <DialogBody className="mt-4 overflow-y-auto">

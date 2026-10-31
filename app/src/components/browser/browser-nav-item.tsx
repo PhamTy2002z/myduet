@@ -230,7 +230,7 @@ const STORE_NAMES: Record<RecorderStore, string> = {
  * in: adding it there is what lets them record from here. Once it is added, the same click connects it.
  */
 export function storeTabSentence(store: RecorderStore): string {
-  return `The OpenBot Recorder's page is open in a new tab. Add it to ${STORE_NAMES[store]} to record from OpenBot.`;
+  return `The OpenBot Recorder's page is open in a new tab. Add it to ${STORE_NAMES[store]} to record from LeoDuet.`;
 }
 
 /** The short note that waits in OpenBot for a person who opened the Recorder's store page in a new tab: one at a time,

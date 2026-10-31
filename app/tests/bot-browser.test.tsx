@@ -488,7 +488,7 @@ test("while the Bot holds the wheel the bar shows where the Bot is, read only, a
 
 test("where the Bots share one computer, the screen says why it cannot record, and offers no Record, while the bar still works", async () => {
   recordRefused =
-    "This OpenBot can't record in a Bot's browser, because its Bots share one computer.";
+    "This LeoDuet can't record in a Bot's browser, because its Bots share one computer.";
   control = heldBy(ME);
   const { dialog } = await openScreen();
   const panel = within(dialog.getByRole("region", { name: "Record a task" }));

@@ -58,7 +58,7 @@ afterAll(async () => {
   await GlobalRegistrator.unregister();
 });
 
-const banner = { name: "Self-host OpenBot" } as const;
+const banner = { name: "Self-host LeoDuet" } as const;
 
 function setup({
   enabled = true,
@@ -104,7 +104,7 @@ function setup({
 test("offers self-hosting with a link CopilotKit can tell came from the app", () => {
   const { view } = setup();
   expect(
-    view.getByText("Self-host OpenBot for your organization."),
+    view.getByText("Self-host LeoDuet for your organization."),
   ).toBeTruthy();
   const link = view.getByRole("link", { name: "Talk to an engineer" });
   expect(link.getAttribute("href")).toBe(SELF_HOST_URL);

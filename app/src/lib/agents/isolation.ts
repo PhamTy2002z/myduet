@@ -27,7 +27,7 @@ export const ISOLATED_MAKING_PUBLIC =
 
 /** Why it cannot be ticked on this deployment. */
 export const ISOLATION_UNAVAILABLE =
-  "This OpenBot can't give a Bot a computer of its own.";
+  "This LeoDuet can't give a Bot a computer of its own.";
 
 /** Why it cannot be ticked by this person. */
 export const ISOLATION_NOT_ALLOWED =
@@ -39,7 +39,7 @@ export const ISOLATION_WITHDRAWN =
 
 /** An isolated Bot on a deployment that can no longer make it a computer of its own. */
 export const ISOLATION_GONE =
-  "This OpenBot can't give a Bot a computer of its own, so this Bot runs on your computer.";
+  "This LeoDuet can't give a Bot a computer of its own, so this Bot runs on your computer.";
 
 /** The whole explanation for a Bot of this visibility. */
 export function isolatedExplained(isPublic: boolean): string {

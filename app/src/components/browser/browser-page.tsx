@@ -72,7 +72,7 @@ export function BrowserPage() {
       <PageShell title={TITLE}>
         <PageEmpty>
           {state.data.note ??
-            "OpenBot isn't set up to run a browser for you. Ask an admin."}
+            "LeoDuet isn't set up to run a browser for you. Ask an admin."}
         </PageEmpty>
       </PageShell>
     );

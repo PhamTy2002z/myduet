@@ -158,16 +158,16 @@ export async function askConnectWait(id: string): Promise<ConnectWait> {
 }
 
 const CONNECT_REFUSALS: Record<string, string> = {
-  "not-https": "The Recorder only connects to OpenBot over HTTPS.",
-  "pinned-elsewhere": "Your organization set the Recorder to another OpenBot.",
+  "not-https": "The Recorder only connects to LeoDuet over HTTPS.",
+  "pinned-elsewhere": "Your organization set the Recorder to another LeoDuet.",
   "policy-invalid":
-    "Your organization's Recorder policy names an OpenBot address the Recorder can't use. Ask your IT team.",
+    "Your organization's Recorder policy names a LeoDuet address the Recorder can't use. Ask your IT team.",
   busy: "The Recorder is finishing another connect request. Try again in a moment.",
   // A trusted OpenBot's connect, which the Recorder completes itself with OpenBot, with no Connect page.
   "exchange-refused":
-    "OpenBot didn't accept the Recorder's connect request. Try again.",
+    "LeoDuet didn't accept the Recorder's connect request. Try again.",
   "openbot-unreachable":
-    "The Recorder couldn't reach OpenBot to connect. Check your connection and try again.",
+    "The Recorder couldn't reach LeoDuet to connect. Check your connection and try again.",
 };
 /** The Recorder can also answer `unreachable` or `invalid`, which have no sentence of their own. */
 const CONNECT_REFUSAL_FALLBACK =

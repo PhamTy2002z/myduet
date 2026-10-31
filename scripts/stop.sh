@@ -80,7 +80,7 @@ identifies_as_openbot() {
       ;;
     app)
       curl -fsS --max-time 3 "http://localhost:$port/" 2>/dev/null \
-        | grep -qi '<title>[^<]*OpenBot'
+        | grep -q '<meta name="openbot-app"'
       ;;
   esac
 }

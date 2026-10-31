@@ -632,7 +632,7 @@ test("Record is offered while the Recorder is disconnected: the server connects 
   );
 });
 
-test("on hosted OpenBot the page is the browser: its tabs, its address and its live screen, driven at once", async () => {
+test("on hosted LeoDuet the page is the browser: its tabs, its address and its live screen, driven at once", async () => {
   state = screenState();
   openAnswer = answerFor("screen");
   const view = draw(<BrowserPage />);
@@ -709,7 +709,7 @@ test("on hosted OpenBot the page is the browser: its tabs, its address and its l
   );
 });
 
-test("on hosted OpenBot the page narrates a recording, and Stop sends the phrase being said before the recording ends", async () => {
+test("on hosted LeoDuet the page narrates a recording, and Stop sends the phrase being said before the recording ends", async () => {
   state = screenState();
   openAnswer = answerFor("screen");
   const recognitions = installChrome();
@@ -782,7 +782,7 @@ test("on hosted OpenBot the page narrates a recording, and Stop sends the phrase
   ).toBeTruthy();
 });
 
-test("on hosted OpenBot a narration the Recorder refused says why, beside the narration switch", async () => {
+test("on hosted LeoDuet a narration the Recorder refused says why, beside the narration switch", async () => {
   state = screenState();
   openAnswer = answerFor("screen");
   refusals = {
@@ -804,12 +804,12 @@ test("on hosted OpenBot a narration the Recorder refused says why, beside the na
   ).toBeTruthy();
 });
 
-test("on hosted OpenBot narration that cannot hear the person shows its switch off, and turning it on tries again", async () => {
+test("on hosted LeoDuet narration that cannot hear the person shows its switch off, and turning it on tries again", async () => {
   // The fourth end-to-end run: in a browser with no microphone the page said narration was off while its switch read on.
   for (const [error, sentence] of [
     [
       "not-allowed",
-      "OpenBot can't use your microphone, so narration is off. Allow the microphone for this site, then turn narration on again. Recording still works.",
+      "LeoDuet can't use your microphone, so narration is off. Allow the microphone for this site, then turn narration on again. Recording still works.",
     ],
     [
       "audio-capture",
@@ -856,7 +856,7 @@ test("on hosted OpenBot narration that cannot hear the person shows its switch o
   }
 });
 
-test("on hosted OpenBot narration whose speech service cannot be reached stays on: it tries again by itself", async () => {
+test("on hosted LeoDuet narration whose speech service cannot be reached stays on: it tries again by itself", async () => {
   state = screenState();
   openAnswer = answerFor("screen");
   const chrome = installRefusingChrome();
@@ -889,7 +889,7 @@ test("Record and Stop the server refused say the server's sentence where the per
     openAnswer = answerFor(shape);
     refusals = {
       [browserApiPaths.recording]:
-        "This browser is no longer connected to OpenBot. Open it from OpenBot again.",
+        "This browser is no longer connected to LeoDuet. Open it from LeoDuet again.",
     };
     const view = draw(<BrowserPage />);
     const user = userEvent.setup({ document });
@@ -899,7 +899,7 @@ test("Record and Stop the server refused say the server's sentence where the per
     );
     await user.click(view.getByRole("button", { name: "Record" }));
     expect((await view.findByRole("alert")).textContent).toBe(
-      "This browser is no longer connected to OpenBot. Open it from OpenBot again.",
+      "This browser is no longer connected to LeoDuet. Open it from LeoDuet again.",
     );
 
     // A recording the Recorder will not stop.
@@ -927,7 +927,7 @@ test("Record and Stop the server refused say the server's sentence where the per
   }
 });
 
-test("on hosted OpenBot a refused Record is shown even after a tab that would not close", async () => {
+test("on hosted LeoDuet a refused Record is shown even after a tab that would not close", async () => {
   state = screenState();
   openAnswer = answerFor("screen");
   refusals = { [browserApiPaths.tabs]: "There is no such tab." };
@@ -995,7 +995,7 @@ test("on OpenBot Desktop the narration row says what the Recorder hears, as it r
   }
 });
 
-test("on hosted OpenBot in a browser with no speech recognition, the page says narration is unavailable and Record still works", async () => {
+test("on hosted LeoDuet in a browser with no speech recognition, the page says narration is unavailable and Record still works", async () => {
   state = screenState();
   openAnswer = answerFor("screen");
   const view = draw(<BrowserPage />);
@@ -1118,7 +1118,7 @@ test("a choice that cannot be read records without narration and asks nothing", 
   expect(preferenceWrites()).toEqual([]);
 });
 
-test("on hosted OpenBot a yes to the narration question listens, on the person's computer, and the bar says it is listening", async () => {
+test("on hosted LeoDuet a yes to the narration question listens, on the person's computer, and the bar says it is listening", async () => {
   narrationChoice = null;
   state = screenState();
   openAnswer = answerFor("screen");
@@ -1152,7 +1152,7 @@ test("on hosted OpenBot a yes to the narration question listens, on the person's
   );
 });
 
-test("on hosted OpenBot a person who chose not to narrate is never listened to, and turning the switch on keeps the new choice", async () => {
+test("on hosted LeoDuet a person who chose not to narrate is never listened to, and turning the switch on keeps the new choice", async () => {
   narrationChoice = "off";
   state = screenState();
   openAnswer = answerFor("screen");
@@ -1179,7 +1179,7 @@ test("on hosted OpenBot a person who chose not to narrate is never listened to, 
   ]);
 });
 
-test("on hosted OpenBot a language still to be downloaded is asked for on the switch's click, and narration waits for it", async () => {
+test("on hosted LeoDuet a language still to be downloaded is asked for on the switch's click, and narration waits for it", async () => {
   state = screenState();
   openAnswer = answerFor("screen");
   // Chrome answers downloadable for a language this page has not asked for yet, and downloads only on a click.
@@ -1221,7 +1221,7 @@ test("on hosted OpenBot a language still to be downloaded is asked for on the sw
   });
 }, 15_000);
 
-test("on hosted OpenBot a browser that cannot keep speech on the computer never listens, and says why", async () => {
+test("on hosted LeoDuet a browser that cannot keep speech on the computer never listens, and says why", async () => {
   state = screenState();
   openAnswer = answerFor("screen");
   const recognitions = installChrome(null);
@@ -1234,7 +1234,7 @@ test("on hosted OpenBot a browser that cannot keep speech on the computer never 
   await user.click(view.getByRole("button", { name: "Record" }));
   expect(
     await view.findByText(
-      "This browser can't turn speech into text on your computer, and OpenBot sends your voice nowhere else, so narration is off. Recording still works.",
+      "This browser can't turn speech into text on your computer, and LeoDuet sends your voice nowhere else, so narration is off. Recording still works.",
     ),
   ).toBeTruthy();
   expect(recognitions).toHaveLength(0);
@@ -1528,18 +1528,18 @@ test("while the browser opens, the page shows no loading placeholder, then the b
   expect(await view.findByText("Google Chrome")).toBeTruthy();
 });
 
-test("where OpenBot cannot run a browser for the person, the page says so and opens nothing", async () => {
+test("where LeoDuet cannot run a browser for the person, the page says so and opens nothing", async () => {
   state = { ...nativeState(), available: false, open: false };
   const view = draw(<BrowserPage />);
   expect(
     await view.findByText(
-      "OpenBot isn't set up to run a browser for you. Ask an admin.",
+      "LeoDuet isn't set up to run a browser for you. Ask an admin.",
     ),
   ).toBeTruthy();
   expect(opens()).toBe(0);
 });
 
-test("on hosted OpenBot a new tab takes the focus into its address bar, as Chrome does", async () => {
+test("on hosted LeoDuet a new tab takes the focus into its address bar, as Chrome does", async () => {
   state = screenState();
   openAnswer = answerFor("screen");
   tabsOpen = true;
@@ -1558,7 +1558,7 @@ test("on hosted OpenBot a new tab takes the focus into its address bar, as Chrom
   );
 });
 
-test("on hosted OpenBot narration the person turned off stays off after a reload, kept on their account", async () => {
+test("on hosted LeoDuet narration the person turned off stays off after a reload, kept on their account", async () => {
   state = screenState();
   openAnswer = answerFor("screen");
   installChrome();
@@ -1601,7 +1601,7 @@ test("where the server says why there is no browser of the person's own, the pag
   // Every Bot shares one computer here, which is no place for a person's browser: a Bot's shell there could read the
   // cookies in its profile (server/src/browser/host.ts).
   const why =
-    "This OpenBot can't open a browser of your own, because its Bots share one computer.";
+    "This LeoDuet can't open a browser of your own, because its Bots share one computer.";
   state = { ...screenState(), available: false, open: false, note: why };
   const view = draw(<BrowserPage />);
   expect(await view.findByText(why)).toBeTruthy();
@@ -1611,7 +1611,7 @@ test("where the server says why there is no browser of the person's own, the pag
 test("on OpenBot Desktop with no Chrome or Edge it can open, the browser in the page says why", async () => {
   // Chrome installed only as a Flatpak, which used to be said only in Desktop's log.
   const why =
-    "OpenBot can't open the Flatpak version of Google Chrome, so install Chrome from google.com/chrome to use your own browser.";
+    "LeoDuet can't open the Flatpak version of Google Chrome, so install Chrome from google.com/chrome to use your own browser.";
   state = { ...screenState(), note: why };
   openAnswer = answerFor("screen");
   const view = draw(<BrowserPage />);
@@ -1666,7 +1666,7 @@ function installRefusingChrome(onDevice: OnDeviceModel = everyLanguage()) {
   return chrome;
 }
 
-test("on hosted OpenBot Clear browser data asks first in one sentence, Cancel does nothing, and Clear shows the browser fresh", async () => {
+test("on hosted LeoDuet Clear browser data asks first in one sentence, Cancel does nothing, and Clear shows the browser fresh", async () => {
   state = screenState();
   openAnswer = answerFor("screen");
   const view = draw(<BrowserPage />);

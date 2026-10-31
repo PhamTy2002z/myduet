@@ -570,7 +570,7 @@ test("a Cancel on the Recorder's Connect page reaches the popover within a secon
   );
 }, 10_000);
 
-test("for a trusted OpenBot the one click connects the Recorder with no Connect page, and the popover opens on Record", async () => {
+test("for a trusted LeoDuet the one click connects the Recorder with no Connect page, and the popover opens on Record", async () => {
   const recorder = new FakeRecorder();
   recorder.trusted = true;
   inBrowser("edge", [recorder]);
@@ -601,7 +601,7 @@ test("a connect the Recorder refuses says why in its own sentence, and Try again
   await user.click(await view.findByRole("button", { name: "Browser" }));
   const alert = await view.findByRole("alert");
   expect(alert.textContent).toBe(
-    "Your organization set the Recorder to another OpenBot.",
+    "Your organization set the Recorder to another LeoDuet.",
   );
   // Reopening the popover does not ask again by itself.
   await user.keyboard("{Escape}");
@@ -620,14 +620,14 @@ test("a connect the Recorder refuses says why in its own sentence, and Try again
 for (const [error, sentence] of [
   [
     "exchange-refused",
-    "OpenBot didn't accept the Recorder's connect request. Try again.",
+    "LeoDuet didn't accept the Recorder's connect request. Try again.",
   ],
   [
     "openbot-unreachable",
-    "The Recorder couldn't reach OpenBot to connect. Check your connection and try again.",
+    "The Recorder couldn't reach LeoDuet to connect. Check your connection and try again.",
   ],
 ] as const) {
-  test(`a trusted connect the Recorder could not complete with OpenBot (${error}) says so in OpenBot's words`, async () => {
+  test(`a trusted connect the Recorder could not complete with LeoDuet (${error}) says so in LeoDuet's words`, async () => {
     const recorder = new FakeRecorder();
     recorder.trusted = true;
     recorder.refuseConnect = error;
@@ -669,7 +669,7 @@ for (const [brands, store, url, name] of [
     await user.click(link);
     await waitFor(() => expect(toasts()).toEqual([storeTabSentence(store)]));
     expect(storeTabSentence(store)).toBe(
-      `The OpenBot Recorder's page is open in a new tab. Add it to ${name} to record from OpenBot.`,
+      `The OpenBot Recorder's page is open in a new tab. Add it to ${name} to record from LeoDuet.`,
     );
     expect(router.state.location.pathname).toBe("/");
     expect(browserRoutes()).toEqual([]);
@@ -719,7 +719,7 @@ test("before the Recorder is published, Chrome with no Recorder keeps today's bu
   );
 });
 
-test("a Recorder from before openbot.state keeps today's button, as OpenBot cannot drive it from here", async () => {
+test("a Recorder from before openbot.state keeps today's button, as LeoDuet cannot drive it from here", async () => {
   const recorder = new FakeRecorder();
   recorder.connected = true;
   recorder.older = true;

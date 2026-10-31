@@ -209,10 +209,10 @@ identifies_as_openbot() {
       curl -fsS --max-time 3 "http://localhost:$port/api/copilotkit/info" 2>/dev/null \
         | grep -q '"licenseStatus"'
       ;;
-    # The app is static HTML with nothing to interrogate, so its title is the identity available.
+    # The app is static HTML with nothing to interrogate, so a marker in its page is the identity.
     app)
       curl -fsS --max-time 3 "http://localhost:$port/" 2>/dev/null \
-        | grep -qi '<title>[^<]*OpenBot'
+        | grep -q '<meta name="openbot-app"'
       ;;
     # Compose services on dedicated loopback ports, answering a route named for this stack.
     *)

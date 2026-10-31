@@ -109,7 +109,7 @@ if [[ "$args" == *"/api/copilotkit/info"* ]]; then
   exit 0
 fi
 if [[ "$args" == *"http://localhost:3010/"* ]]; then
-  printf '<title>OpenBot</title>'
+  printf '<meta name="openbot-app" content="web" />'
   exit 0
 fi
 exit 0

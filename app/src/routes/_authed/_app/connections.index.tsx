@@ -133,7 +133,7 @@ export const AUTHORIZATION_NOTICES: ReadonlyMap<string, string> = new Map([
   ],
   [
     "vendor-unavailable",
-    "The app didn't answer when OpenBot tried to finish that authorization, so nothing was recorded. Try the link again in a moment.",
+    "The app didn't answer when LeoDuet tried to finish that authorization, so nothing was recorded. Try the link again in a moment.",
   ],
   [
     "not-your-authorization",

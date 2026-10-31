@@ -198,7 +198,7 @@ export type ConnectProgress =
 function connectSentence(progress: ConnectProgress): string {
   switch (progress.state) {
     case "idle":
-      return "The OpenBot Recorder in this browser isn't connected to OpenBot.";
+      return "The OpenBot Recorder in this browser isn't connected to LeoDuet.";
     case "sending":
       return "Connecting this browser…";
     case "awaiting":

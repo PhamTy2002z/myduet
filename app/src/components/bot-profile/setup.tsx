@@ -145,7 +145,7 @@ export function SetupSections({ agent }: { agent: AgentProfile }) {
                 <ItemContent>
                   <ItemTitle>System owned</ItemTitle>
                   <ItemDescription>
-                    Comes with OpenBot. It doesn't belong to a person.
+                    Comes with LeoDuet. It doesn't belong to a person.
                   </ItemDescription>
                 </ItemContent>
               </Item>
@@ -192,8 +192,8 @@ function VisibilityRow({
                 ? `Only you can see it and start conversations with it. ${ISOLATED_MAKING_PUBLIC}`
                 : "Only you can see it and start conversations with it."
               : agent.isolationActive
-                ? `Everyone on OpenBot can find and use it. ${ISOLATED_PUBLIC_SHARES_LOGINS}`
-                : "Everyone on OpenBot can find and use it.")}
+                ? `Everyone on LeoDuet can find and use it. ${ISOLATED_PUBLIC_SHARES_LOGINS}`
+                : "Everyone on LeoDuet can find and use it.")}
         </ItemDescription>
       </ItemContent>
       <ItemActions>
@@ -271,7 +271,7 @@ function IsolatedRow({
     (agent.isolated || (available && allowed));
 
   const summary = agent.systemOwned
-    ? "Comes with OpenBot, so it runs on the computer of whoever is using it."
+    ? "Comes with LeoDuet, so it runs on the computer of whoever is using it."
     : agent.isolated
       ? agent.isolationActive
         ? isolatedExplained(isPublic)
@@ -455,7 +455,7 @@ function ConnectionSection({ agent }: { agent: AgentProfile }) {
               }
             >
               {builtIn
-                ? "Runs inside OpenBot. There's nothing to connect."
+                ? "Runs inside LeoDuet. There's nothing to connect."
                 : agent.endpoint}
             </ItemDescription>
           </ItemContent>

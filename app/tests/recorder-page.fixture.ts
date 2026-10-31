@@ -136,7 +136,7 @@ export class FakeRecorder {
 
   private record(title: string): RecorderPageResult {
     if (!this.connected)
-      return { ok: false, error: "Connect the Recorder to OpenBot first." };
+      return { ok: false, error: "Connect the Recorder to LeoDuet first." };
     if (this.refuseRecord) return { ok: false, error: this.refuseRecord };
     if (this.phase !== "idle")
       return { ok: false, error: "The Recorder is already recording." };
@@ -150,7 +150,7 @@ export class FakeRecorder {
 
   private stop(): RecorderPageResult {
     if (!this.connected)
-      return { ok: false, error: "Connect the Recorder to OpenBot first." };
+      return { ok: false, error: "Connect the Recorder to LeoDuet first." };
     if (this.phase !== "recording")
       return { ok: false, error: "Nothing is being recorded." };
     this.recordings += 1;

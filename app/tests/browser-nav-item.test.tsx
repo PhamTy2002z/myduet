@@ -64,7 +64,7 @@ afterAll(async () => {
 const PERSON_BROWSER = `person-${"cd34".repeat(8)}`;
 /** What the server says when the person's browser cannot open for OpenBot's own setup (server/src/browser/routes.ts). */
 const NOT_SET_UP =
-  "Your browser can't open right now. Ask an admin to check OpenBot's setup.";
+  "Your browser can't open right now. Ask an admin to check LeoDuet's setup.";
 
 /** Every request the button made, as `<method> <path>`. */
 const requests: string[] = [];
@@ -401,7 +401,7 @@ test("a refused open shows the server's own sentence in a toast that stays until
   expect(opens()).toBe(4);
 }, 15_000);
 
-test("on hosted OpenBot the Browser button is a link to the browser in the page, and the click opens nothing itself", async () => {
+test("on hosted LeoDuet the Browser button is a link to the browser in the page, and the click opens nothing itself", async () => {
   state = closedState("screen");
   const { view, router } = draw();
   const link = await view.findByRole("link", { name: "Browser" });
@@ -431,7 +431,7 @@ test("a server from before shows was said keeps the Browser button a link to the
   expect(link.getAttribute("href")).toBe("/browser");
 });
 
-test("the sidebar has no Browser button where OpenBot cannot run one, or cannot say", async () => {
+test("the sidebar has no Browser button where LeoDuet cannot run one, or cannot say", async () => {
   state = {
     available: false,
     computerId: PERSON_BROWSER,
@@ -565,7 +565,7 @@ test("the sidebar asks often while the browser is open and rarely while it is cl
 }, 15_000);
 
 for (const shows of ["native", "screen"] as const) {
-  test(`a recording in the person's everyday browser puts the red dot on the ${shows === "native" ? "Desktop" : "hosted"} Browser button with no OpenBot browser open, and Stop there takes it away`, async () => {
+  test(`a recording in the person's everyday browser puts the red dot on the ${shows === "native" ? "Desktop" : "hosted"} Browser button with no LeoDuet browser open, and Stop there takes it away`, async () => {
     // Nothing of OpenBot's own is open: the server's `activity` is the one thing saying a Recorder records.
     state = { ...closedState(shows), activity: receipt("recording") };
     const { view } = draw();
@@ -586,7 +586,7 @@ for (const shows of ["native", "screen"] as const) {
   });
 }
 
-test("the dot is the server's activity, not the OpenBot browser's own report: one that records nothing lights nothing", async () => {
+test("the dot is the server's activity, not the LeoDuet browser's own report: one that records nothing lights nothing", async () => {
   // The server folds the OpenBot browser's Recorder into `activity` itself (server/src/browser/routes.ts); the sidebar
   // reads that alone, so one rule decides the dot wherever the person records.
   const { activity: _folded, ...unfolded } = recording("recording");

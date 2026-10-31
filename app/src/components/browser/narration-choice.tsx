@@ -113,7 +113,7 @@ export function NarrationChoiceDialog({
             voice never leaves it, and no recording of it is kept.
           </p>
           <p className="mt-2">
-            OpenBot keeps your answer for every recording. You can change it any
+            LeoDuet keeps your answer for every recording. You can change it any
             time with the Narration switch on this page.
           </p>
         </DialogBody>

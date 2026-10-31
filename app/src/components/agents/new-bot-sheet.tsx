@@ -926,8 +926,8 @@ function EndpointStep({
             />
           ) : (
             <FieldDescription>
-              Any agent that speaks AG-UI works. OpenBot connects to it, so it
-              has to be reachable from OpenBot's server.
+              Any agent that speaks AG-UI works. LeoDuet connects to it, so it
+              has to be reachable from LeoDuet's server.
             </FieldDescription>
           )}
         </Field>

@@ -35,13 +35,13 @@ function automaticMessage(
     automatic.state === "assigned" &&
     settings.defaultTarget?.containerId === automatic.containerId
   )
-    return `OpenBot assigned this Intelligence project's "${automatic.containerId}" container automatically. You can change it here.`;
+    return `LeoDuet assigned this Intelligence project's "${automatic.containerId}" container automatically. You can change it here.`;
   if (automatic.state === "absent")
     return `This Intelligence project has no "${automatic.containerId}" Learning container yet. Nothing is collected.`;
   if (automatic.state === "not_entitled")
     return "This Intelligence project's plan doesn't include Learning. No container was assigned.";
   if (automatic.state === "unavailable")
-    return "Couldn't reach Intelligence to find this project's Learning container. OpenBot will try again.";
+    return "Couldn't reach Intelligence to find this project's Learning container. LeoDuet will try again.";
   return undefined;
 }
 
@@ -197,7 +197,7 @@ export function LearningPage() {
     >
       <PageSection
         title="Participation"
-        description="Container changes apply to new conversations. Existing ones keep their first container. Containers must already exist in the same Intelligence project. Until you save here, OpenBot uses that project's openbot container."
+        description="Container changes apply to new conversations. Existing ones keep their first container. Containers must already exist in the same Intelligence project. Until you save here, LeoDuet uses that project's openbot container."
       >
         {settingsQuery.isPending && (
           <p role="status">Loading Learning settings…</p>
@@ -479,7 +479,7 @@ export function LearningPage() {
           </Button>
           <p className="text-muted-foreground text-sm">
             Managing Learning needs your Intelligence account and project
-            access. OpenBot keeps project credentials on the server. Turning
+            access. LeoDuet keeps project credentials on the server. Turning
             Learning off here keeps settings and conversation assignments.
             Schedules and publishing stay in Intelligence.
           </p>

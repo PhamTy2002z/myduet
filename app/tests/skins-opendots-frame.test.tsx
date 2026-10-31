@@ -262,12 +262,12 @@ function draw(path: string) {
   const page = createRoute({
     getParentRoute: () => root,
     path: "$",
-    component: () => <p>OpenBot page</p>,
+    component: () => <p>LeoDuet page</p>,
   });
   const index = createRoute({
     getParentRoute: () => root,
     path: "/",
-    component: () => <p>OpenBot home</p>,
+    component: () => <p>LeoDuet home</p>,
   });
   const router = createRouter({
     history: createMemoryHistory({ initialEntries: [path] }),
@@ -292,7 +292,7 @@ function hrefs(container: HTMLElement) {
 }
 
 describe("OpenDots frame", () => {
-  test("BOTS lists the Bots OpenBot's agent list returns, in the roster's order", async () => {
+  test("BOTS lists the Bots LeoDuet's agent list returns, in the roster's order", async () => {
     const { view } = draw("/");
     const list = await view.findByRole("navigation", { name: "Your Bots" });
     await waitFor(() =>
@@ -347,11 +347,11 @@ describe("OpenDots frame", () => {
     cleanup();
     // Without a chosen Bot there is no one to introduce.
     const open = draw("/channel/new");
-    await open.view.findByText("OpenBot page");
+    await open.view.findByText("LeoDuet page");
     expect(open.view.queryByRole("link", { name: /Edit Bot/ })).toBeNull();
   });
 
-  test("every OpenBot surface is reachable from the frame", async () => {
+  test("every LeoDuet surface is reachable from the frame", async () => {
     const { view } = draw("/");
     await view.findByText("Planning the Lisbon trip");
     await view.findByText("Cass");
@@ -433,7 +433,7 @@ describe("OpenDots frame", () => {
     ["a member", person],
     ["an admin", admin],
   ])(
-    "the rail and sidebar draw OpenBot's own navigation list for %s",
+    "the rail and sidebar draw LeoDuet's own navigation list for %s",
     async (_who, signedIn) => {
       actor = signedIn;
       const { view } = draw("/");
@@ -492,7 +492,7 @@ describe("OpenDots frame", () => {
       agentsFail = true;
       channels = [];
       const { view } = draw(path);
-      await view.findByText(/OpenBot (page|home)/);
+      await view.findByText(/LeoDuet (page|home)/);
       const settings = view
         .getAllByRole("link")
         .filter((link) => link.getAttribute("href") === "/settings");
@@ -525,7 +525,7 @@ describe("OpenDots frame", () => {
     );
   });
 
-  test("elsewhere, the computer toggle opens OpenBot's computer for the Bot on screen", async () => {
+  test("elsewhere, the computer toggle opens LeoDuet's computer for the Bot on screen", async () => {
     const { view, user } = draw("/bots/cass");
     await waitFor(() =>
       expect(view.getByTestId("opendots-crumb").textContent).toBe("Cass"),
@@ -556,7 +556,7 @@ describe("OpenDots frame", () => {
     // A page about no one Bot offers no pause, since there would be nothing to say it applies to.
     cleanup();
     const elsewhere = draw("/connections");
-    await elsewhere.view.findByText("OpenBot page");
+    await elsewhere.view.findByText("LeoDuet page");
     expect(
       elsewhere.view.queryByRole("button", { name: /^Pause / }),
     ).toBeNull();
@@ -564,7 +564,7 @@ describe("OpenDots frame", () => {
 });
 
 describe("OpenDots screens", () => {
-  test("Routines is OpenBot's routines list under OpenDots' heading", async () => {
+  test("Routines is LeoDuet's routines list under OpenDots' heading", async () => {
     const Screen = opendots.screens?.routines;
     if (!Screen) throw new Error("OpenDots has no routines screen");
     const view = render(
@@ -576,7 +576,7 @@ describe("OpenDots screens", () => {
     expect(await view.findByText("No routines yet")).toBeTruthy();
   });
 
-  test("Memories is OpenBot's memory list under OpenDots' heading, with Remember a fact", async () => {
+  test("Memories is LeoDuet's memory list under OpenDots' heading, with Remember a fact", async () => {
     const Screen = opendots.screens?.memories;
     if (!Screen) throw new Error("OpenDots has no memories screen");
     const view = render(
@@ -627,7 +627,7 @@ describe("OpenDots skin wears the deployment's brand", () => {
     expect(view.container.querySelector('img[src*="/skins/"]')).toBeNull();
   });
 
-  test("every Bot wears OpenBot's own avatar, drawn from its avatarSeed", async () => {
+  test("every Bot wears LeoDuet's own avatar, drawn from its avatarSeed", async () => {
     const { view } = draw("/channel/new?agent=ada");
     const list = await view.findByRole("navigation", { name: "Your Bots" });
     await waitFor(() =>

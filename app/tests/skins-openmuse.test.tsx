@@ -445,7 +445,7 @@ function Page() {
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
   });
-  return <p data-testid="page">OpenBot page {pathname}</p>;
+  return <p data-testid="page">LeoDuet page {pathname}</p>;
 }
 
 function renderAt(path: string) {
@@ -518,7 +518,7 @@ async function openMenu() {
 }
 
 describe("OpenMuse is a registered skin with its own frame", () => {
-  test("the registry hands OpenBot the frame and the three skin screens", () => {
+  test("the registry hands LeoDuet the frame and the three skin screens", () => {
     expect(SKINS.openmuse.Frame).toBe(OpenMuseFrame);
     // Apps is OpenBot's own Connections page, so the skin adds three screens, not four.
     expect(Object.keys(SKINS.openmuse.screens ?? {}).sort()).toEqual([
@@ -530,7 +530,7 @@ describe("OpenMuse is a registered skin with its own frame", () => {
 });
 
 describe("the frame", () => {
-  test("centres OpenBot's default Bot, with what it is waiting on", async () => {
+  test("centres LeoDuet's default Bot, with what it is waiting on", async () => {
     serve();
     renderAt("/connections");
     const centre = await page().findByRole("button", {
@@ -557,11 +557,11 @@ describe("the frame", () => {
       ),
     );
     expect(page().getByTestId("page").textContent).toBe(
-      "OpenBot page /channel/c-scout",
+      "LeoDuet page /channel/c-scout",
     );
   });
 
-  test("the five tabs lead to OpenBot's chat and the skin's own screens", async () => {
+  test("the five tabs lead to LeoDuet's chat and the skin's own screens", async () => {
     serve();
     renderAt("/s/goals");
     const nav = await page().findByRole("navigation", { name: PRODUCT });
@@ -718,7 +718,7 @@ describe("the frame wears the deployment's brand, not OpenMuse's", () => {
     },
   );
 
-  test("the centre Bot is drawn with its own OpenBot avatar", async () => {
+  test("the centre Bot is drawn with its own LeoDuet avatar", async () => {
     serve();
     renderAt("/connections");
     const centre = await page().findByRole("button", { name: /Switch Bot$/ });
@@ -745,7 +745,7 @@ describe("the frame wears the deployment's brand, not OpenMuse's", () => {
   });
 });
 
-describe("every OpenBot surface stays reachable", () => {
+describe("every LeoDuet surface stays reachable", () => {
   // A row's name is its title and then its one line of detail, so each is matched from its start.
   const surfaces: [RegExp, string][] = [
     [/^Main chat/, "/channel/c-muse"],
@@ -785,7 +785,7 @@ describe("every OpenBot surface stays reachable", () => {
   });
 
   test.each(["admin", "user"] as const)(
-    "the menu draws OpenBot's whole navigation list for a %s",
+    "the menu draws LeoDuet's whole navigation list for a %s",
     async (role) => {
       serve({ role });
       renderAt("/s/goals");
@@ -851,7 +851,7 @@ describe("every OpenBot surface stays reachable", () => {
   });
 });
 
-describe("each tab is OpenBot's own sections for the centre Bot", () => {
+describe("each tab is LeoDuet's own sections for the centre Bot", () => {
   test("Activity shows what the Bot waits on you for, and its work", async () => {
     serve();
     renderAt("/s/activity");
@@ -865,7 +865,7 @@ describe("each tab is OpenBot's own sections for the centre Bot", () => {
     expect(page().getByRole("heading", { name: "Completed" })).toBeTruthy();
   });
 
-  test("Ideas shows only the centre Bot's suggestions and starts one through OpenBot", async () => {
+  test("Ideas shows only the centre Bot's suggestions and starts one through LeoDuet", async () => {
     const calls = serve();
     renderAt("/s/ideas");
     expect(
@@ -896,7 +896,7 @@ describe("each tab is OpenBot's own sections for the centre Bot", () => {
     expect(page().queryByText("Watch the competition")).toBeNull();
   });
 
-  test("a routine is paused from Goals through OpenBot's own switch", async () => {
+  test("a routine is paused from Goals through LeoDuet's own switch", async () => {
     const calls = serve();
     renderAt("/s/goals");
     fireEvent.click(
@@ -913,7 +913,7 @@ describe("each tab is OpenBot's own sections for the centre Bot", () => {
     );
   });
 
-  test("the bell lists what is waiting and decides through OpenBot's approvals", async () => {
+  test("the bell lists what is waiting and decides through LeoDuet's approvals", async () => {
     const calls = serve();
     renderAt("/s/goals");
     fireEvent.click(
@@ -936,7 +936,7 @@ describe("each tab is OpenBot's own sections for the centre Bot", () => {
 });
 
 describe("the rules the frame runs on", () => {
-  test("the centre follows the conversation, then the choice, then OpenBot's default", () => {
+  test("the centre follows the conversation, then the choice, then LeoDuet's default", () => {
     const agents = [scout, muse];
     expect(centreBot(agents, null, undefined)?.id).toBe(muse.id);
     expect(centreBot(agents, scout.id, undefined)?.id).toBe(scout.id);

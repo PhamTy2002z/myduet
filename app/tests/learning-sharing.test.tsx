@@ -116,7 +116,7 @@ test("three choices, each with one plain line saying who sees what", async () =>
     view.getByText("Only the Bots you use draw on your Skills."),
   ).toBeTruthy();
   expect(
-    view.getByText("Every Bot on OpenBot draws on all of your Skills."),
+    view.getByText("Every Bot on LeoDuet draws on all of your Skills."),
   ).toBeTruthy();
 });
 

@@ -16,7 +16,7 @@ const read = (path: string) =>
 const skinned = SKIN_IDS.filter((id) => id !== DEFAULT_SKIN);
 
 describe("skin preference", () => {
-  test("a stored skin is used only when OpenBot ships it", () => {
+  test("a stored skin is used only when LeoDuet ships it", () => {
     for (const id of SKIN_IDS) expect(parseStoredSkin(id)).toBe(id);
     expect(parseStoredSkin(null)).toBe(DEFAULT_SKIN);
     expect(parseStoredSkin("")).toBe(DEFAULT_SKIN);

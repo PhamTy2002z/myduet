@@ -63,13 +63,13 @@ describe("production build cache", () => {
     await withProject(async (paths) => {
       await writeBuildCacheManifest(paths, {
         TENANT_PACKAGE_DIR: "../examples/brand",
-        VITE_PUBLIC_NAME: "OpenBot",
+        VITE_PUBLIC_NAME: "LeoDuet",
       });
 
       expect(
         await isReusableBuild(paths, {
           TENANT_PACKAGE_DIR: "../examples/brand",
-          VITE_PUBLIC_NAME: "OpenBot",
+          VITE_PUBLIC_NAME: "LeoDuet",
         }),
       ).toBe(true);
     });
@@ -102,7 +102,7 @@ describe("production build cache", () => {
 
   test("rejects a build when Vite-exposed environment changes", async () => {
     await withProject(async (paths) => {
-      await writeBuildCacheManifest(paths, { VITE_PUBLIC_NAME: "OpenBot" });
+      await writeBuildCacheManifest(paths, { VITE_PUBLIC_NAME: "LeoDuet" });
 
       expect(
         await isReusableBuild(paths, { VITE_PUBLIC_NAME: "Changed" }),

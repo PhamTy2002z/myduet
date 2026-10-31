@@ -532,7 +532,7 @@ function AppConnectionPage() {
         >
           {entry
             ? "Bots use one shared account for this app, the same for everybody."
-            : "OpenBot has no app by that name."}
+            : "LeoDuet has no app by that name."}
         </PageEmpty>
       </PageShell>
     );
@@ -605,7 +605,7 @@ function AppConnectionPage() {
                          * had not, which is the one outcome worse than not offering it.
                          */
                         setNotice(
-                          `You can't disconnect here yet. To stop access now, remove OpenBot in your ${entry.vendor} account's third-party access settings.`,
+                          `You can't disconnect here yet. To stop access now, remove LeoDuet in your ${entry.vendor} account's third-party access settings.`,
                         )
                       }
                       className="whitespace-nowrap"
@@ -641,7 +641,7 @@ function AppConnectionPage() {
 
       {connection ? (
         <PageSection
-          description={`Review the permissions recorded by ${entry.vendor}. They may include fewer permissions than OpenBot requested.`}
+          description={`Review the permissions recorded by ${entry.vendor}. They may include fewer permissions than LeoDuet requested.`}
           title="Access"
         >
           <PageRows>
