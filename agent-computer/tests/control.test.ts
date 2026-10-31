@@ -140,6 +140,26 @@ describe("request-aware handoff", () => {
     expect(() => control.admitBotAction(true)).not.toThrow();
   });
 
+  test("after a restart nobody touched, a Bot may open a page without looking first", () => {
+    const { control } = fixture();
+    control.interrupt("The browser restarted.");
+    // Opening a page uses no refs and reads where it lands; clicking still needs a snapshot.
+    expect(() => control.admitBotAction(true, true)()).not.toThrow();
+    expect(() => control.admitBotAction(true)).toThrow(SnapshotRequiredError);
+  });
+
+  test("after a person hands back, a Bot looks before opening another page", async () => {
+    const { control, request } = fixture();
+    const help = request();
+    await control.take(help.id);
+    control.release(help.id);
+    expect(() => control.admitBotAction(true, true)).toThrow(
+      SnapshotRequiredError,
+    );
+    control.snapshotTaken();
+    expect(() => control.admitBotAction(true, true)()).not.toThrow();
+  });
+
   test("reads are copies and reasons are bounded", () => {
     const { control } = fixture();
     const state = control.requestHelp("x".repeat(900));

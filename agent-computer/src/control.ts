@@ -98,6 +98,12 @@ export function createControl(
     | { label: string; ref: string; snapshotId?: number; requestedAt: string }
     | undefined;
   let storageError: Error | undefined;
+  /**
+   * The snapshot owed is for a page a person just handed back, not a browser that merely restarted.
+   * Only then must the Bot look before opening another page, so it never navigates away from what
+   * the person left unseen. In memory: after a process restart the page is gone either way.
+   */
+  let handedBack = false;
   const current = () =>
     data.requests.find((r) => r.id === data.currentRequestId);
   const active = (request: HandoffRequest | undefined) =>
@@ -302,6 +308,7 @@ export function createControl(
     delete data.heldBy;
     data.since = now();
     data.resumeSnapshotRequired = true;
+    handedBack = false;
     secret = undefined;
     options.invalidateSnapshot?.();
     persist();
@@ -470,6 +477,7 @@ export function createControl(
       delete data.heldBy;
       data.since = now();
       data.resumeSnapshotRequired = true;
+      handedBack = true;
       data.recoveryRequired = false;
       secret = undefined;
       options.invalidateSnapshot?.();
@@ -510,19 +518,25 @@ export function createControl(
         !active(current())
       ) {
         data.resumeSnapshotRequired = false;
+        handedBack = false;
         persist();
       }
     },
-    assertBotMayAct(browserMutation = false) {
+    /** `opensPage`: a navigation, which uses no refs and reads the page it lands on. */
+    assertBotMayAct(browserMutation = false, opensPage = false) {
       expire();
       if (data.holder === "human" || active(current()) || data.recoveryRequired)
         throw new ControlError(HUMAN_HAS_CONTROL);
       if (ending > 0) throw new ControlError(RECORDING_ENDING);
-      if (browserMutation && data.resumeSnapshotRequired)
+      if (
+        browserMutation &&
+        data.resumeSnapshotRequired &&
+        (handedBack || !opensPage)
+      )
         throw new SnapshotRequiredError();
     },
-    admitBotAction(browserMutation = false): () => void {
-      this.assertBotMayAct(browserMutation);
+    admitBotAction(browserMutation = false, opensPage = false): () => void {
+      this.assertBotMayAct(browserMutation, opensPage);
       return barrier.enter();
     },
     humanMayDrive(): boolean {

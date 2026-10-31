@@ -1000,6 +1000,7 @@ serve<StreamData>({
       if (actsOnTheComputer(url.pathname)) {
         releaseAction = session.control.admitBotAction(
           mutatesBrowser(url.pathname),
+          url.pathname === "/navigate",
         );
       }
 
@@ -1387,7 +1388,7 @@ serve<StreamData>({
         const startedAt = Date.now();
         try {
           const target = await currentPage(botId, "navigate");
-          session.control.assertBotMayAct(true);
+          session.control.assertBotMayAct(true, true);
           const response = await navigateWebPage(
             target,
             parsed.url,
