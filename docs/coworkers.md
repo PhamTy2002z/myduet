@@ -111,6 +111,19 @@ Endpoint registration uses target checks. Cloud metadata addresses are refused u
 
 `POST /api/agents/test-connection` checks whether an endpoint answers before saving it.
 
+## Hermes Agent coworkers
+
+`agent-hermes` puts a Hermes Agent profile behind a coworker: one profile and one coworker per
+person, published only to that person. Hermes takes every action through this deployment's governed
+tools, which it reaches over MCP through the bridge, so grants, policy and the audit trail apply to
+it as they do to any other Bot. Setup is in [agent-hermes/README.md](../agent-hermes/README.md):
+
+1. Configure the profile on the Hermes host. Add the bridge as an MCP server, keep only that
+   server's tools on the API server, and disable the native toolsets.
+2. Create the coworker here. Its endpoint is `http://<bridge>:4230/c/<route>`, with an
+   `Authorization` header. Issue its callback token.
+3. Add one route to the bridge's routes file, and add the bridge to `AGENT_ENDPOINT_ALLOWED_HOSTS`.
+
 ## Capabilities
 
 A coworker's role does not grant capabilities. Capabilities are governed separately:

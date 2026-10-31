@@ -13,7 +13,11 @@ whatever endpoint its key points at. [The Intelligence platform →](docs/intell
 (`BIND_HOST`), replaces the placeholder platform key with a random one, and can run the built-in
 Bots on a Claude Pro/Max plan through the in-tree Claude Agent SDK harness (`SKIP_SAMPLE_BOTS`,
 `PICKED_HARNESS_*`, `ANTHROPIC_MODEL`). CopilotKit runtime telemetry ships off. See the comments in
-`.env.example` and [Configuration](docs/configuration.md).
+`.env.example` and [Configuration](docs/configuration.md). Memory recall works for Vietnamese
+typed with or without diacritics. `/ready` checks the database, and `scripts/backup.sh` and
+`scripts/restore.sh` back up and restore it ([Deployment](docs/deployment.md)). Hermes Agent profiles
+can be coworkers through [agent-hermes](agent-hermes/README.md), with every action going through
+the governed tools.
 
 **The AI assistant your company can actually own.** Same shape as ChatGPT, Claude or Grok, with one difference that matters: it runs on your infrastructure and you can change anything about it. Any agent stack, through AG-UI.
 

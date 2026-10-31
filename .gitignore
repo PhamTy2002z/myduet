@@ -56,3 +56,8 @@ venv/
 
 # The Recorder extension's signing key never enters the repository (Decision 9).
 extension/**/*.pem
+backups/
+# The Hermes bridge's routes file holds secrets, and its tool catalog is local state.
+agent-hermes/routes.json
+.agent-hermes/
+agent-hermes/.agent-hermes/

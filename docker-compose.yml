@@ -194,7 +194,7 @@ services:
         condition: service_completed_successfully
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "bun -e \"const r = await fetch('http://127.0.0.1:3001/health'); process.exit(r.ok ? 0 : 1)\""]
+      test: ["CMD-SHELL", "bun -e \"const r = await fetch('http://127.0.0.1:3001/ready'); process.exit(r.ok ? 0 : 1)\""]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -514,6 +514,38 @@ services:
       # mount has to be the containing directory rather than the file mount point.
       - ./.langchain:/root/.langchain
 
+  # Hermes Agent profiles as coworkers (agent-hermes/README.md). Opt-in: `docker compose --profile
+  # hermes up -d agent-hermes`, with HERMES_ROUTES_FILE naming the routes JSON on this machine, which
+  # holds every credential the bridge uses and is mounted read-only.
+  agent-hermes:
+    profiles: ["hermes"]
+    build:
+      context: .
+      dockerfile: agent-hermes/Dockerfile
+    image: ${HERMES_BRIDGE_IMAGE:-openbot-agent-hermes:latest}
+    pull_policy: ${IMAGE_PULL_POLICY:-build}
+    ports:
+      # Loopback: the server reaches it over the published port, and the Hermes hosts reach its
+      # MCP endpoint through whatever private network the deployment puts in front of it.
+      - "127.0.0.1:${HERMES_BRIDGE_PORT:-4230}:4230"
+      - "[::1]:${HERMES_BRIDGE_PORT:-4230}:4230"
+    environment:
+      HERMES_ROUTES_FILE: /run/agent-hermes/routes.json
+      HERMES_MCP_SERVER_NAME: ${HERMES_MCP_SERVER_NAME:-openbot}
+      # Governed tools go back through the deployment, exactly as agent-langgraph's do.
+      OPENBOT_TOOL_URL: ${OPENBOT_TOOL_URL:-http://host.docker.internal:3001/api/agent-tools/call}
+    volumes:
+      - ${HERMES_ROUTES_FILE:-./agent-hermes/routes.json}:/run/agent-hermes/routes.json:ro
+      - agent-hermes-data:/data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "bun -e \"const r = await fetch('http://127.0.0.1:4230/health'); process.exit(r.ok ? 0 : 1)\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # The same Bot behavior on a framework, exposed as another AG-UI endpoint and registry row.
   agent-langgraph:
     build:
@@ -581,3 +613,4 @@ volumes:
   spire-agent-socket:
   spire-agent-data:
   agent-profiles:
+  agent-hermes-data:
