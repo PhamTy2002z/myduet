@@ -190,12 +190,14 @@ function ChannelBody({
   isPending,
   hasError,
 }: {
-  channel: AgentChannel | undefined;
+  channel: AgentChannel | null | undefined;
   isPending: boolean;
   hasError: boolean;
 }) {
   // Nothing while the channel loads: a placeholder inside a local round-trip is a flicker.
   if (isPending) return null;
+  // Deleted, or not this person's: nothing to show, so back to the start rather than an error.
+  if (channel === null) return <Navigate replace to="/" />;
   if (hasError || !channel) {
     return (
       <p className="p-8 text-sm text-destructive" role="alert">

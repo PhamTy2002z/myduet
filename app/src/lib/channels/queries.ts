@@ -1,5 +1,5 @@
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
-import { client } from "@/lib/client";
+import { client, tryClient } from "@/lib/client";
 
 /**
  * A channel as the browser sees it.
@@ -133,10 +133,20 @@ export function channelListQueryOptions() {
 export function channelQueryOptions(channelId: string) {
   return queryOptions({
     queryKey: channelKeys.detail(channelId),
-    queryFn: async (): Promise<AgentChannel> => {
-      return client(`/api/channels/${channelId}`, "channel", {
-        fallback: "Couldn't load this conversation.",
-      });
+    // `null` is a channel that is gone (deleted, or never this person's): an answer, not a failure,
+    // so a stale link or tab can leave instead of asking for a reload that will never help.
+    queryFn: async (): Promise<AgentChannel | null> => {
+      const response = await tryClient(
+        `/api/channels/${encodeURIComponent(channelId)}`,
+      );
+      if (response.status === 404) return null;
+      const body = (await response.json().catch(() => null)) as {
+        channel?: AgentChannel;
+        error?: string;
+      } | null;
+      if (!response.ok || !body?.channel)
+        throw new Error(body?.error ?? "Couldn't load this conversation.");
+      return body.channel;
     },
   });
 }
